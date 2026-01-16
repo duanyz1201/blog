@@ -115,11 +115,24 @@ CREATE DATABASE blog;
 # 生成 Prisma Client
 npx prisma generate
 
-# 运行数据库迁移
+# 运行数据库迁移（自动运行种子脚本）
 npx prisma migrate dev
 
 # 查看数据库（可选）
 npx prisma studio
+```
+
+> 💡 **自动种子功能**：`prisma migrate dev` 会自动运行 `prisma/seed.ts`，创建管理员账户和测试数据。
+
+**默认管理员账户**（自动创建）：
+- 用户名/邮箱：`admin` 或 `admin@admin.com`
+- 密码：`admin@123`
+
+**手动运行种子脚本**（如果需要重新初始化）：
+```bash
+npm run seed          # 根据环境自动判断（开发环境：管理员+测试数据，生产环境：仅管理员）
+# 或直接使用 Prisma 命令：
+npx prisma db seed
 ```
 
 ### 5. 运行开发服务器
@@ -165,6 +178,7 @@ blog/
 │   └── ...
 ├── prisma/                  # 数据库
 │   ├── schema.prisma        # 数据模型
+│   ├── seed.ts              # 自动种子脚本（迁移后自动运行，根据环境自动判断）
 │   └── migrations/          # 数据库迁移
 ├── public/                  # 静态资源
 ├── types/                   # TypeScript 类型
@@ -183,9 +197,12 @@ npm start            # 启动生产服务器
 
 # 数据库
 npx prisma generate  # 生成 Prisma Client
-npx prisma migrate dev    # 开发环境迁移
-npx prisma migrate deploy # 生产环境迁移
+npx prisma migrate dev    # 开发环境迁移（自动运行种子脚本）
+npx prisma migrate deploy # 生产环境迁移（自动运行种子脚本）
 npx prisma studio     # 打开数据库可视化工具
+
+# 数据初始化（手动运行，通常不需要，迁移时会自动运行）
+npm run seed          # 手动运行种子脚本（根据环境自动判断）
 
 # 代码检查
 npm run lint         # 运行 ESLint
@@ -216,17 +233,41 @@ npm run lint         # 运行 ESLint
    - 配置生产环境的 `NEXTAUTH_URL`（使用 HTTPS）
    - 生成新的 `NEXTAUTH_SECRET`
 
-2. **数据库迁移**
+2. **数据库迁移（自动创建管理员账户）**
    ```bash
    npx prisma migrate deploy
    npx prisma generate
    ```
+   
+   > 💡 **自动种子功能**：运行 `prisma migrate deploy` 后，Prisma 会自动运行种子脚本（`prisma/seed.ts`），根据环境自动判断：
+   > - **生产环境**：仅创建管理员账户
+   > - **开发环境**：创建管理员账户 + 测试数据（分类、标签、文章）
+   > 
+   > 环境判断规则：
+   > - `NODE_ENV=production`
+   > - `PRISMA_SEED_MODE=production`
+   > - `DATABASE_URL` 包含 `production` 或 `prod`
+   
+   **默认管理员账户**（自动创建）：
+   - 用户名/邮箱：`admin` 或 `admin@admin.com`
+   - 密码：`admin@123`
+   - ⚠️ **重要**：部署后请立即登录并修改密码！
 
-3. **生产构建测试**
+3. **手动运行种子脚本（可选）**
+   ```bash
+   # 如果需要手动重新初始化数据，可以使用：
+   npm run seed          # 根据环境自动判断（开发环境：管理员+测试数据，生产环境：仅管理员）
+   # 或直接使用 Prisma 命令：
+   npx prisma db seed
+   ```
+
+4. **生产构建测试**
    ```bash
    npm run build
    npm start
    ```
+   
+   > ✅ **无需额外步骤**：管理员账户已在步骤 2 中自动创建，可以直接登录使用！
 
 ### 部署平台
 
@@ -258,10 +299,12 @@ npm run lint         # 运行 ESLint
 
 - ✅ 确保 `.env.local` 文件已添加到 `.gitignore`
 - ✅ 生产环境使用强密码
+- ✅ **部署后立即修改默认管理员密码**
 - ✅ 配置 HTTPS
 - ✅ 定期更新依赖包
 - ✅ 配置数据库连接池
 - ✅ 设置适当的 CORS 策略
+- ✅ 生产环境使用 `npm run seed:production` 而非 `npm run seed`（避免导入测试数据）
 
 ## 📚 相关文档
 
