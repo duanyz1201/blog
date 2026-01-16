@@ -145,14 +145,13 @@ export function CodeBlock({ children, className, language }: CodeBlockProps) {
               >
                 <code 
                   ref={codeRef}
-                  className={`block text-sm font-mono text-slate-200 ${className || ''}`}
+                  className={`block text-sm font-mono ${className || ''}`}
                   style={{ 
                     lineHeight: '1.5rem',
                     display: 'block',
                     padding: 0,
                     margin: 0
                   }}
-                  // 确保高亮样式正确应用
                   suppressHydrationWarning
                 >
                   {children}

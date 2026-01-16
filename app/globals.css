@@ -98,12 +98,13 @@ body {
 
 /* 确保代码块中的高亮样式正确显示 */
 .hljs {
-  color: #e5e7eb !important;
+  color: #e5e7eb !important; /* 默认文本颜色 */
   background: transparent !important;
   display: block !important;
   overflow-x: auto !important;
 }
 
+/* 高亮类的颜色优先级必须高于 .hljs 的默认颜色 */
 .hljs-comment,
 .hljs-quote {
   color: #6b7280 !important;
@@ -193,7 +194,7 @@ body {
 [class*="code-block"] .hljs,
 pre code.hljs {
   background: transparent !important;
-  color: #e5e7eb !important;
+  /* 不设置 color，让高亮颜色生效 */
 }
 
 /* 确保代码块内的所有高亮元素都正确显示 - 但不要覆盖高亮颜色 */
@@ -207,18 +208,15 @@ code.hljs {
   display: block !important;
 }
 
-/* 确保高亮后的 span 元素正确显示 */
+/* 确保高亮后的 span 元素正确显示 - 不覆盖高亮颜色 */
 pre code.hljs span,
 code.hljs span {
   display: inline !important;
-  color: inherit !important;
+  /* 不设置 color: inherit，让高亮颜色生效 */
 }
 
 /* 确保 highlight.js 的样式不被覆盖 - 针对 bash 等语言 */
-pre code.language-bash,
-pre code.language-bash * {
-  color: inherit !important;
-}
+/* 移除 color: inherit，让高亮颜色生效 */
 
 /* 代码块行高对齐 */
 pre {
@@ -251,6 +249,7 @@ pre code br {
   line-height: 1.5rem !important;
   display: inline;
   vertical-align: baseline !important;
+  /* 不设置 color，让高亮颜色生效 */
 }
 
 /* 确保代码块内的换行符也正确对齐 */

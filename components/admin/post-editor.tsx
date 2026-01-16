@@ -3,6 +3,9 @@
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Placeholder from "@tiptap/extension-placeholder"
+import { Markdown } from "@tiptap/markdown"
+import CodeBlock from "@tiptap/extension-code-block"
+import { nodeInputRule } from "@tiptap/core"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,7 +17,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Bold, Italic, List, Code } from "lucide-react"
+import { Bold, Italic, List, Code, FileText, Eye } from "lucide-react"
+import { useState } from "react"
+
+// 自定义 CodeBlock 扩展：支持 ```bash 直接创建代码块（不需要空格）
+const CustomCodeBlock = CodeBlock.extend({
+  addInputRules() {
+    return [
+      // 匹配 ```bash 或 ```bash␠（带或不带空格）
+      nodeInputRule({
+        find: /^```([a-zA-Z0-9#+-]*)\s?$/,
+        type: this.type,
+        getAttributes: (match) => {
+          const [, lang] = match
+          return { language: lang || null }
+        },
+      }),
+    ]
+  },
+})
 
 type PostEditorProps = {
   initialData?: {
@@ -40,15 +61,40 @@ export function PostEditor({
   onSubmit,
   isSubmitting = false,
 }: PostEditorProps) {
+  // 添加 Markdown 源代码编辑模式状态
+  const [isMarkdownMode, setIsMarkdownMode] = useState(false)
+  const [markdownSource, setMarkdownSource] = useState(initialData?.content || "")
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // 禁用默认的 CodeBlock，使用自定义版本
+        codeBlock: false,
+      }),
+      CustomCodeBlock.configure({
+        HTMLAttributes: {
+          class: 'hljs',
+        },
+      }),
+      Markdown.configure({
+        // 确保 Markdown 扩展正确处理代码块
+        html: false,
+        transformPastedText: true,
+        transformCopiedText: true,
+      }),
       Placeholder.configure({
         placeholder: "开始编写文章内容...",
       }),
     ],
     content: initialData?.content || "",
+    contentType: 'markdown',
     immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      // 当编辑器内容更新时，同步更新 Markdown 源代码
+      if (!isMarkdownMode) {
+        setMarkdownSource(editor.getMarkdown())
+      }
+    },
     editorProps: {
       attributes: {
         class: "prose prose-slate dark:prose-invert max-w-none min-h-[400px] p-4 focus:outline-none",
@@ -56,14 +102,34 @@ export function PostEditor({
     },
   })
 
+  // 切换 Markdown 源代码模式
+  const toggleMarkdownMode = () => {
+    if (isMarkdownMode) {
+      // 从源代码模式切换到可视化模式
+      const newSource = markdownSource
+      editor?.commands.setContent(newSource, false, { contentType: 'markdown' })
+      setIsMarkdownMode(false)
+    } else {
+      // 从可视化模式切换到源代码模式
+      const currentMarkdown = editor?.getMarkdown() || ""
+      setMarkdownSource(currentMarkdown)
+      setIsMarkdownMode(true)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     
+    // 如果在 Markdown 源代码模式，使用源代码；否则使用编辑器的 Markdown
+    const content = isMarkdownMode 
+      ? markdownSource 
+      : (editor?.getMarkdown() || editor?.getHTML() || "")
+    
     const data = {
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
-      content: editor?.getHTML() || "",
+      content: content,
       excerpt: formData.get("excerpt") as string || null,
       cover: formData.get("cover") as string || null,
       status: formData.get("status") as string,
@@ -103,47 +169,86 @@ export function PostEditor({
       </div>
 
       <div className="space-y-2">
-        <Label>内容 *</Label>
+        <div className="flex items-center justify-between">
+          <Label>内容 *</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleMarkdownMode}
+            className="flex items-center gap-2"
+          >
+            {isMarkdownMode ? (
+              <>
+                <Eye className="h-4 w-4" />
+                可视化模式
+              </>
+            ) : (
+              <>
+                <FileText className="h-4 w-4" />
+                Markdown 源代码
+              </>
+            )}
+          </Button>
+        </div>
         <div className="border rounded-lg">
-          <div className="border-b p-2 flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive("bold") ? "bg-accent" : ""}
-            >
-              <Bold className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive("italic") ? "bg-accent" : ""}
-            >
-              <Italic className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={editor.isActive("bulletList") ? "bg-accent" : ""}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={editor.isActive("codeBlock") ? "bg-accent" : ""}
-            >
-              <Code className="h-4 w-4" />
-            </Button>
-          </div>
-          <EditorContent editor={editor} />
+          {isMarkdownMode ? (
+            // Markdown 源代码编辑模式
+            <Textarea
+              value={markdownSource}
+              onChange={(e) => setMarkdownSource(e.target.value)}
+              placeholder={`输入 Markdown 格式内容，例如：
+
+\`\`\`bash
+echo 'Hello World'
+\`\`\``}
+              className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0"
+              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace' }}
+            />
+          ) : (
+            // 可视化编辑模式
+            <>
+              <div className="border-b p-2 flex gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={editor.isActive("bold") ? "bg-accent" : ""}
+                >
+                  <Bold className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={editor.isActive("italic") ? "bg-accent" : ""}
+                >
+                  <Italic className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  className={editor.isActive("bulletList") ? "bg-accent" : ""}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                  className={editor.isActive("codeBlock") ? "bg-accent" : ""}
+                >
+                  <Code className="h-4 w-4" />
+                </Button>
+              </div>
+              <EditorContent editor={editor} />
+            </>
+          )}
         </div>
       </div>
 
