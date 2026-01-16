@@ -537,12 +537,13 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    # 静态文件缓存
-    location /_next/static {
-        proxy_pass http://localhost:3000;
-        proxy_cache_valid 200 60m;
-        add_header Cache-Control "public, immutable";
-    }
+    # 静态文件缓存（Next.js 会自动处理，无需特殊配置）
+    # Next.js 的静态文件应该通过主 location / 代理，由 Next.js 服务器处理
+    # location /_next/static {
+    #     proxy_pass http://localhost:3000;
+    #     proxy_cache_valid 200 60m;
+    #     add_header Cache-Control "public, immutable";
+    # }
 }
 
 # HTTPS 配置（配置 SSL 后使用）

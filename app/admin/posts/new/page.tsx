@@ -1,6 +1,9 @@
 import { PostEditor } from "@/components/admin/post-editor"
 import { redirect } from "next/navigation"
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic'
+
 async function getCategoriesAndTags() {
   const [categoriesRes, tagsRes] = await Promise.all([
     fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/categories`, {

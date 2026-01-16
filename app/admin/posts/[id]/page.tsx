@@ -3,6 +3,9 @@ import { PostEditor } from "@/components/admin/post-editor"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic'
+
 async function getPost(id: string) {
   try {
     const post = await prisma.post.findUnique({
