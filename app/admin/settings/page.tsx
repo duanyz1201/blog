@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,8 +10,35 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Globe, MessageSquare, Search, Mail, Bell } from "lucide-react"
 
+type SettingsData = {
+  siteInfo?: {
+    siteName: string
+    siteDescription: string
+    siteUrl: string
+    authorName: string
+    authorEmail: string
+  }
+  commentSettings?: {
+    commentDefaultStatus: "APPROVED" | "PENDING"
+    commentsPerPage: number
+    enableNestedComments: boolean
+    maxNestedDepth: number
+  }
+  seoSettings?: {
+    metaKeywords: string
+    metaDescription: string
+    enableSitemap: boolean
+    enableRSS: boolean
+  }
+  otherSettings?: {
+    postsPerPage: number
+    enableDarkMode: boolean
+  }
+}
+
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
   const [saveSuccess, setSaveSuccess] = useState(false)
   
   // 站点基本信息
@@ -37,14 +64,93 @@ export default function SettingsPage() {
   const [postsPerPage, setPostsPerPage] = useState(10)
   const [enableDarkMode, setEnableDarkMode] = useState(true)
 
+  // 加载设置
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/settings")
+        if (response.ok) {
+          const data: SettingsData = await response.json()
+          
+          if (data.siteInfo) {
+            setSiteName(data.siteInfo.siteName || "个人博客")
+            setSiteDescription(data.siteInfo.siteDescription || "")
+            setSiteUrl(data.siteInfo.siteUrl || "")
+            setAuthorName(data.siteInfo.authorName || "管理员")
+            setAuthorEmail(data.siteInfo.authorEmail || "")
+          }
+          
+          if (data.commentSettings) {
+            setCommentDefaultStatus(data.commentSettings.commentDefaultStatus || "APPROVED")
+            setCommentsPerPage(data.commentSettings.commentsPerPage || 10)
+            setEnableNestedComments(data.commentSettings.enableNestedComments ?? true)
+            setMaxNestedDepth(data.commentSettings.maxNestedDepth || 2)
+          }
+          
+          if (data.seoSettings) {
+            setMetaKeywords(data.seoSettings.metaKeywords || "")
+            setMetaDescription(data.seoSettings.metaDescription || "")
+            setEnableSitemap(data.seoSettings.enableSitemap ?? true)
+            setEnableRSS(data.seoSettings.enableRSS ?? true)
+          }
+          
+          if (data.otherSettings) {
+            setPostsPerPage(data.otherSettings.postsPerPage || 10)
+            setEnableDarkMode(data.otherSettings.enableDarkMode ?? true)
+          }
+        }
+      } catch (error) {
+        console.error("加载设置失败:", error)
+      } finally {
+        setLoadingData(false)
+      }
+    }
+    
+    loadSettings()
+  }, [])
+
   const handleSave = async () => {
     setLoading(true)
     setSaveSuccess(false)
     
     try {
-      // TODO: 保存到数据库或API
-      // 这里先模拟保存
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const settingsData: Record<string, any> = {
+        siteInfo: {
+          siteName,
+          siteDescription,
+          siteUrl,
+          authorName,
+          authorEmail,
+        },
+        commentSettings: {
+          commentDefaultStatus,
+          commentsPerPage,
+          enableNestedComments,
+          maxNestedDepth,
+        },
+        seoSettings: {
+          metaKeywords,
+          metaDescription,
+          enableSitemap,
+          enableRSS,
+        },
+        otherSettings: {
+          postsPerPage,
+          enableDarkMode,
+        },
+      }
+      
+      const response = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settingsData),
+      })
+      
+      if (!response.ok) {
+        throw new Error("保存失败")
+      }
       
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 3000)
@@ -54,6 +160,17 @@ export default function SettingsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (loadingData) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold mb-8">系统设置</h1>
+        <div className="text-center py-12 text-muted-foreground">
+          <p>加载设置中...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

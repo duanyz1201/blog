@@ -102,3 +102,10 @@ enum CommentStatus {
 
   @@map("comment_status")
 }
+
+model Setting {
+  id    String @id @default("site")
+  value String @db.Text
+
+  @@map("settings")
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -14,6 +14,26 @@ export function Header() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [siteName, setSiteName] = useState("个人博客")
+
+  // 获取站点名称
+  useEffect(() => {
+    const fetchSiteName = async () => {
+      try {
+        const response = await fetch("/api/settings")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.siteName) {
+            setSiteName(data.siteName)
+          }
+        }
+      } catch (error) {
+        console.error("获取站点名称失败:", error)
+      }
+    }
+    
+    fetchSiteName()
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +52,7 @@ export function Header() {
               href="/" 
               className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0"
             >
-              个人博客
+              {siteName}
             </Link>
 
             {/* 导航链接 - 绝对居中 */}
