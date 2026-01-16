@@ -18,8 +18,10 @@ export const postSchema = z.object({
   title: z.string().min(1, "标题不能为空").max(200, "标题最多200个字符"),
   slug: z.string().min(1, "URL别名不能为空").max(200, "URL别名最多200个字符"),
   content: z.string().min(1, "内容不能为空"),
-  excerpt: z.string().max(500, "摘要最多500个字符").optional(),
-  cover: z.string().url("封面图片URL格式不正确").optional().or(z.literal("")),
+  excerpt: z.string().max(500, "摘要最多500个字符").nullable().optional(),
+  cover: z
+    .union([z.string().url("封面图片URL格式不正确"), z.literal(""), z.null()])
+    .optional(),
   status: z.enum(["PUBLISHED", "DRAFT", "PRIVATE"]),
   categoryIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),

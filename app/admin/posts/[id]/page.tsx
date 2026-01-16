@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { PostEditor } from "@/components/admin/post-editor"
 import { prisma } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 async function getPost(id: string) {
   try {
@@ -61,7 +62,15 @@ export default async function EditPostPage({
     
     try {
       await requireAdmin()
-      const validatedData = postSchema.parse(data)
+      
+      // 准备数据，处理空字符串的 cover 字段
+      const dataToValidate = {
+        ...data,
+        cover: data.cover && data.cover.trim() !== "" ? data.cover : undefined,
+        excerpt: data.excerpt && data.excerpt.trim() !== "" ? data.excerpt : undefined,
+      }
+      
+      const validatedData = postSchema.parse(dataToValidate)
       
       await prisma.post.update({
         where: { id: postId },
@@ -69,7 +78,7 @@ export default async function EditPostPage({
           title: validatedData.title,
           slug: validatedData.slug,
           content: validatedData.content,
-          excerpt: validatedData.excerpt,
+          excerpt: validatedData.excerpt || null,
           cover: validatedData.cover || null,
           status: validatedData.status,
           categories: {
@@ -83,10 +92,30 @@ export default async function EditPostPage({
         },
       })
       
-      redirect("/admin/posts")
+      // 重新验证路径
+      revalidatePath("/admin/posts")
+      revalidatePath(`/admin/posts/${postId}`)
+      
+      // 返回成功状态而不是直接 redirect
+      return { success: true, message: "文章已成功保存！" }
     } catch (error: any) {
       console.error("更新文章错误:", error)
-      throw new Error("更新文章失败")
+      
+      // 如果是验证错误，显示详细的验证信息
+      if (error?.issues && Array.isArray(error.issues)) {
+        const validationErrors = error.issues
+          .map((issue: any) => `${issue.path.join('.')}: ${issue.message}`)
+          .join(', ')
+        return { success: false, message: `验证失败: ${validationErrors}` }
+      }
+      
+      // 如果是 Prisma 错误，显示数据库错误信息
+      if (error?.code) {
+        return { success: false, message: `数据库错误: ${error.message || error.code}` }
+      }
+      
+      // 其他错误，显示原始错误信息
+      return { success: false, message: `更新文章失败: ${error.message || String(error)}` }
     }
   }
 

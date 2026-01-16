@@ -50,7 +50,7 @@ type PostEditorProps = {
   }
   categories: Array<{ id: string; name: string }>
   tags: Array<{ id: string; name: string }>
-  onSubmit: (data: any) => Promise<void>
+  onSubmit: (data: any) => Promise<{ success: boolean; message?: string } | void>
   isSubmitting?: boolean
 }
 
@@ -157,8 +157,14 @@ export function PostEditor({
     }
   }, [markdownSource, isMarkdownMode])
 
+  const [submitError, setSubmitError] = useState<string>("")
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setSubmitError("")
+    setSubmitSuccess(false)
+    
     const formData = new FormData(e.currentTarget)
     
     // 如果在 Markdown 源代码模式，使用源代码；否则使用编辑器的 Markdown
@@ -177,7 +183,32 @@ export function PostEditor({
       tagIds: formData.getAll("tags") as string[],
     }
 
-    await onSubmit(data)
+    try {
+      const result = await onSubmit(data)
+      
+      // 如果返回结果对象，根据结果显示消息
+      if (result && typeof result === 'object') {
+        if (result.success) {
+          setSubmitSuccess(true)
+          // 3秒后跳转到文章列表
+          setTimeout(() => {
+            window.location.href = "/admin/posts"
+          }, 1500)
+        } else {
+          setSubmitError(result.message || "保存失败，请稍后重试")
+        }
+      } else {
+        // 如果没有返回结果（可能是旧版本），假设成功
+        setSubmitSuccess(true)
+        setTimeout(() => {
+          window.location.href = "/admin/posts"
+        }, 1500)
+      }
+    } catch (error: any) {
+      // 捕获错误并显示
+      const errorMessage = error?.message || "保存失败，请稍后重试"
+      setSubmitError(errorMessage)
+    }
   }
 
   if (!editor) {
@@ -365,6 +396,24 @@ echo 'Hello World'
           ))}
         </div>
       </div>
+
+      {/* 错误提示 */}
+      {submitError && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+          <p className="text-sm text-red-800 dark:text-red-200">
+            {submitError}
+          </p>
+        </div>
+      )}
+
+      {/* 成功提示 */}
+      {submitSuccess && (
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+          <p className="text-sm text-green-800 dark:text-green-200">
+            文章已成功保存！
+          </p>
+        </div>
+      )}
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isSubmitting}>
