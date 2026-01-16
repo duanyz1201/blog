@@ -27,15 +27,17 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
   const [loading, setLoading] = useState<string | null>(null)
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       APPROVED: "default",
       PENDING: "secondary",
       REJECTED: "destructive",
+      HIDDEN: "outline",
     }
     const labels: Record<string, string> = {
       APPROVED: "已通过",
       PENDING: "待审核",
       REJECTED: "已拒绝",
+      HIDDEN: "已隐藏",
     }
     return (
       <Badge variant={variants[status] || "secondary"}>
@@ -108,8 +110,72 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
     }
   }
 
+  const handleHide = async (commentId: string) => {
+    setLoading(commentId)
+    try {
+      const response = await fetch(`/api/admin/comments/${commentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "HIDDEN" }),
+      })
+
+      if (!response.ok) {
+        throw new Error("操作失败")
+      }
+
+      // 更新本地状态
+      setComments(comments.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, status: "HIDDEN" }
+          : comment
+      ))
+
+      // 刷新页面以同步数据
+      router.refresh()
+    } catch (error) {
+      console.error("隐藏评论错误:", error)
+      alert("操作失败，请稍后重试")
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleUnhide = async (commentId: string) => {
+    setLoading(commentId)
+    try {
+      const response = await fetch(`/api/admin/comments/${commentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "APPROVED" }),
+      })
+
+      if (!response.ok) {
+        throw new Error("操作失败")
+      }
+
+      // 更新本地状态
+      setComments(comments.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, status: "APPROVED" }
+          : comment
+      ))
+
+      // 刷新页面以同步数据
+      router.refresh()
+    } catch (error) {
+      console.error("取消隐藏评论错误:", error)
+      alert("操作失败，请稍后重试")
+    } finally {
+      setLoading(null)
+    }
+  }
+
   const handleDelete = async (commentId: string) => {
-    if (!confirm("确定要删除这条评论吗？")) {
+    if (!confirm("确定要删除这条评论吗？删除后无法恢复。")) {
       return
     }
 
@@ -145,64 +211,95 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {comments.map((comment: any) => (
         <div
           key={comment.id}
-          className="p-4 border rounded-lg hover:bg-accent"
+          className="p-3 border rounded-lg hover:bg-accent/50 transition-colors"
         >
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium">{comment.author}</span>
-                <span className="text-sm text-muted-foreground">
-                  {comment.email}
-                </span>
-                {getStatusBadge(comment.status)}
-              </div>
-              <p className="text-sm mb-2 whitespace-pre-wrap">
-                {comment.content}
-              </p>
-              <Link
-                href={`/post/${comment.post.slug}`}
-                className="text-xs text-primary hover:underline"
-              >
-                {comment.post.title}
-              </Link>
+          {/* 第一行：用户信息、状态、时间、操作按钮 */}
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
+              <span className="font-semibold text-sm">{comment.author}</span>
+              <span className="text-xs text-muted-foreground truncate">
+                {comment.email}
+              </span>
+              {getStatusBadge(comment.status)}
+              <span className="text-xs text-muted-foreground hidden sm:inline">
+                {format(new Date(comment.createdAt), "yyyy年MM月dd日 HH:mm", { locale: zhCN })}
+              </span>
             </div>
-            <div className="text-xs text-muted-foreground">
-              {format(new Date(comment.createdAt), "yyyy年MM月dd日 HH:mm", { locale: zhCN })}
-            </div>
-          </div>
-          <div className="flex gap-2 mt-4">
-            {comment.status === "PENDING" && (
-              <>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-muted-foreground sm:hidden">
+                {format(new Date(comment.createdAt), "MM-dd HH:mm", { locale: zhCN })}
+              </span>
+              {comment.status === "PENDING" && (
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => handleApprove(comment.id)}
+                    disabled={loading === comment.id}
+                  >
+                    {loading === comment.id ? "处理中..." : "通过"}
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => handleReject(comment.id)}
+                    disabled={loading === comment.id}
+                  >
+                    {loading === comment.id ? "处理中..." : "拒绝"}
+                  </Button>
+                </>
+              )}
+              {comment.status === "HIDDEN" ? (
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleApprove(comment.id)}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => handleUnhide(comment.id)}
                   disabled={loading === comment.id}
                 >
-                  {loading === comment.id ? "处理中..." : "通过"}
+                  {loading === comment.id ? "处理中..." : "取消隐藏"}
                 </Button>
+              ) : (
                 <Button 
-                  variant="destructive" 
+                  variant="outline" 
                   size="sm"
-                  onClick={() => handleReject(comment.id)}
+                  className="h-7 px-2 text-xs"
+                  onClick={() => handleHide(comment.id)}
                   disabled={loading === comment.id}
                 >
-                  {loading === comment.id ? "处理中..." : "拒绝"}
+                  {loading === comment.id ? "处理中..." : "隐藏"}
                 </Button>
-              </>
-            )}
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => handleDelete(comment.id)}
-              disabled={loading === comment.id}
+              )}
+              <Button 
+                variant="destructive" 
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => handleDelete(comment.id)}
+                disabled={loading === comment.id}
+              >
+                {loading === comment.id ? "删除中..." : "删除"}
+              </Button>
+            </div>
+          </div>
+
+          {/* 第二行：评论内容和文章标题 */}
+          <div className="space-y-1">
+            <p className="text-sm whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300">
+              {comment.content}
+            </p>
+            <Link
+              href={`/post/${comment.post.slug}`}
+              className="inline-block text-xs text-primary hover:underline truncate max-w-full"
+              title={comment.post.title}
             >
-              {loading === comment.id ? "删除中..." : "删除"}
-            </Button>
+              📄 {comment.post.title}
+            </Link>
           </div>
         </div>
       ))}

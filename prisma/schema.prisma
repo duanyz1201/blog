@@ -98,6 +98,7 @@ enum CommentStatus {
   APPROVED
   PENDING
   REJECTED
+  HIDDEN
 
   @@map("comment_status")
 }
