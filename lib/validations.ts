@@ -7,9 +7,9 @@ export const registerSchema = z.object({
   password: z.string().min(6, "密码至少6个字符").max(100, "密码最多100个字符"),
 })
 
-// 登录表单验证
+// 登录表单验证（支持用户名或邮箱）
 export const loginSchema = z.object({
-  email: z.string().email("请输入有效的邮箱地址"),
+  username: z.string().min(1, "请输入用户名或邮箱"),
   password: z.string().min(1, "请输入密码"),
 })
 

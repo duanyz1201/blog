@@ -12,19 +12,24 @@ const config: NextAuthConfig = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "邮箱", type: "email" },
+        username: { label: "用户名或邮箱", type: "text" },
         password: { label: "密码", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.username || !credentials?.password) {
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string
-          }
-        })
+        const usernameOrEmail = credentials.username as string
+        const isEmail = usernameOrEmail.includes('@')
+        
+        const user = isEmail
+          ? await prisma.user.findUnique({
+              where: { email: usernameOrEmail }
+            })
+          : await prisma.user.findFirst({
+              where: { name: usernameOrEmail }
+            })
 
         if (!user) {
           return null

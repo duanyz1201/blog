@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 type LoginFormData = {
-  email: string
+  username: string
   password: string
 }
 
@@ -35,13 +35,13 @@ export default function SignInPage() {
 
     try {
       const result = await signIn("credentials", {
-        email: data.email,
+        username: data.username,
         password: data.password,
         redirect: false,
       })
 
       if (result?.error) {
-        setError("邮箱或密码错误")
+        setError("用户名/邮箱或密码错误")
       } else {
         router.push("/")
         router.refresh()
@@ -58,7 +58,7 @@ export default function SignInPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>登录</CardTitle>
-          <CardDescription>请输入您的邮箱和密码登录</CardDescription>
+          <CardDescription>请输入您的用户名或邮箱和密码登录</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -69,15 +69,15 @@ export default function SignInPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">邮箱</Label>
+              <Label htmlFor="username">用户名或邮箱</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                {...register("email")}
+                id="username"
+                type="text"
+                placeholder="admin 或 admin@admin.com"
+                {...register("username")}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+              {errors.username && (
+                <p className="text-sm text-destructive">{errors.username.message}</p>
               )}
             </div>
 
