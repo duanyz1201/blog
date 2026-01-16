@@ -1,0 +1,11 @@
+-- 授予 public schema 的所有权限
+GRANT ALL PRIVILEGES ON SCHEMA public TO duanyz;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO duanyz;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO duanyz;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO duanyz;
+
+-- 授予数据库的所有权限
+GRANT ALL PRIVILEGES ON DATABASE blog TO duanyz;
+
+-- 如果 schema 的所有者不是 duanyz，可能需要先设置所有者
+-- ALTER SCHEMA public OWNER TO duanyz;
