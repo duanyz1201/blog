@@ -146,11 +146,6 @@ export function HeroSection({ stats }: { stats: Stats }) {
 
       {/* 中心内容 */}
       <div className={`absolute inset-0 flex flex-col items-center justify-center text-center px-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-        {/* 主标题 */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider">
-          个人博客
-        </h1>
-        
         {/* 副标题/格言 */}
         <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl">
           记录技术成长，分享生活感悟
