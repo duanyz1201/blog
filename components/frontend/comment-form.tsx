@@ -24,11 +24,12 @@ export function CommentForm({
 }: {
   postId: string
   parentId?: string
-  onSuccess?: () => void
+  onSuccess?: (comment?: any) => void
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
 
   const {
     register,
@@ -64,12 +65,28 @@ export function CommentForm({
         return
       }
 
-      setSuccess(true)
-      reset()
-      if (onSuccess) {
+      // 如果评论默认通过，立即将新评论添加到列表
+      if (onSuccess && result.comment) {
+        // 立即调用回调，传入新评论
+        onSuccess(result.comment)
+        // 重置表单
+        reset()
+        // 显示成功提示，3秒后自动消失
+        setSuccessMessage(result.message || "评论已发布成功！")
+        setSuccess(true)
         setTimeout(() => {
-          onSuccess()
-        }, 1000)
+          setSuccess(false)
+          setSuccessMessage("")
+        }, 3000)
+      } else {
+        // 如果没有回调，显示成功消息
+        setSuccessMessage("评论已发布成功！")
+        setSuccess(true)
+        reset()
+        setTimeout(() => {
+          setSuccess(false)
+          setSuccessMessage("")
+        }, 3000)
       }
     } catch (error) {
       setError("评论提交失败，请稍后重试")
@@ -78,21 +95,18 @@ export function CommentForm({
     }
   }
 
-  if (success) {
-    return (
-      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-        <p className="text-sm text-green-800 dark:text-green-200">
-          评论已提交，等待审核通过后显示
-        </p>
-      </div>
-    )
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {success && (
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md animate-in fade-in slide-in-from-top-2 duration-300">
+          <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+            ✓ {successMessage || "评论已发布成功！"}
+          </p>
+        </div>
+      )}
       {error && (
-        <div className="p-3 bg-destructive/15 text-destructive text-sm rounded-md">
-          {error}
+        <div className="p-3 bg-destructive/15 text-destructive text-sm rounded-md animate-in fade-in slide-in-from-top-2 duration-300">
+          ✗ {error}
         </div>
       )}
 

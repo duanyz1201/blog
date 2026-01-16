@@ -4,8 +4,7 @@ import { formatDate, formatDateTime } from "@/lib/date-utils"
 import { MarkdownContent } from "@/components/markdown-content"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CommentList } from "@/components/frontend/comment-list"
-import { CommentForm } from "@/components/frontend/comment-form"
+import { CommentSection } from "@/components/frontend/comment-section"
 import { ReadingProgress } from "@/components/frontend/reading-progress"
 import { PostCard } from "@/components/frontend/post-card"
 import { ShareButtons } from "@/components/frontend/share-buttons"
@@ -140,16 +139,8 @@ export default async function PostPage({
           </div>
         </div>
 
-        {/* 评论区域 */}
-        <div className="mt-16 pt-12 border-t border-gray-200 dark:border-slate-800">
-          <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-            评论 ({post.comments?.length || 0})
-          </h2>
-          <CommentForm postId={post.id} />
-          <div className="mt-8">
-            <CommentList comments={post.comments || []} postId={post.id} />
-          </div>
-        </div>
+        {/* 评论区域 - 使用客户端组件包装 */}
+        <CommentSection postId={post.id} initialComments={post.comments || []} />
 
         {/* 相关文章 */}
         {post.relatedPosts && post.relatedPosts.length > 0 && (

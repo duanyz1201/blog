@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
@@ -126,27 +127,61 @@ export function MarkdownContent({ content }: { content: string }) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { detect: true }]]}
         components={{
-          code({ node, inline, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || "")
-            const language = match ? match[1] : undefined
+          // 自定义 p 组件，检查是否包含块级元素，如果是则使用 div 而不是 p
+          p({ children, ...props }: any) {
+            // 检查子元素是否包含块级元素（如 pre, div 等）
+            const hasBlockLevel = React.Children.toArray(children).some((child: any) => {
+              if (!child || typeof child !== 'object') return false
+              // 检查是否是 pre 或其他块级元素
+              if (child.type === 'pre' || child.type === 'div' || (child.props && (child.props.className || '').includes('code-block'))) {
+                return true
+              }
+              return false
+            })
             
-            // 代码块（多行）
-            if (!inline) {
-              // rehypeHighlight 会将代码转换为带有高亮类的 HTML
-              // children 可能包含 React 元素（高亮后的 HTML）
+            // 如果包含块级元素，使用 div 而不是 p
+            if (hasBlockLevel) {
+              return <div {...props}>{children}</div>
+            }
+            
+            return <p {...props}>{children}</p>
+          },
+          // 自定义 pre 组件，使用 CodeBlock
+          pre({ children, ...props }: any) {
+            // 如果 children 是 code 元素，使用 CodeBlock
+            const codeElement = Array.isArray(children) ? children[0] : children
+            if (codeElement && typeof codeElement === 'object' && 'props' in codeElement) {
+              const codeProps = (codeElement as any).props || {}
+              const className = codeProps.className || ''
+              const match = /language-(\w+)/.exec(className || "")
+              const language = match ? match[1] : undefined
+              
               return (
                 <CodeBlock className={className} language={language} {...props}>
-                  {children}
+                  {codeProps.children}
                 </CodeBlock>
               )
             }
             
+            // 默认的 pre 标签
+            return <pre {...props}>{children}</pre>
+          },
+          code({ node, inline, className, children, ...props }: any) {
             // 行内代码
+            if (inline) {
+              return (
+                <code 
+                  className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-200" 
+                  {...props}
+                >
+                  {children}
+                </code>
+              )
+            }
+            
+            // 代码块（多行）- 只返回 code 内容，pre 组件会处理包装
             return (
-              <code 
-                className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-200" 
-                {...props}
-              >
+              <code className={className} {...props}>
                 {children}
               </code>
             )

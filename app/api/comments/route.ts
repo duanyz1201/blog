@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
         email: validatedData.email,
         postId: validatedData.postId,
         parentId: validatedData.parentId,
-        status: "PENDING", // 默认待审核
+        status: "APPROVED", // 默认已通过
       },
     })
     
     return NextResponse.json(
       { 
-        message: "评论已提交，等待审核",
+        message: "评论已发布",
         comment 
       },
       { status: 201 }
