@@ -111,22 +111,45 @@ CREATE DATABASE blog;
 
 #### 运行数据库迁移
 
+**开发环境**：
+
 ```bash
 # 生成 Prisma Client
 npx prisma generate
 
-# 运行数据库迁移（自动运行种子脚本）
+# 运行数据库迁移（开发环境，自动运行种子脚本）
 npx prisma migrate dev
 
 # 查看数据库（可选）
 npx prisma studio
 ```
 
-> 💡 **自动种子功能**：`prisma migrate dev` 会自动运行 `prisma/seed.ts`，创建管理员账户和测试数据。
+> 💡 **开发环境自动种子功能**：`prisma migrate dev` 会自动运行 `prisma/seed.ts`，创建管理员账户和测试数据（分类、标签、文章）。
+
+**生产环境**：
+
+```bash
+# 生成 Prisma Client
+npx prisma generate
+
+# 运行数据库迁移（生产环境，自动运行种子脚本）
+npx prisma migrate deploy
+
+# 查看数据库（可选）
+npx prisma studio
+```
+
+> 💡 **生产环境自动种子功能**：`prisma migrate deploy` 会自动运行 `prisma/seed.ts`，根据环境变量自动判断为生产环境，仅创建管理员账户（不创建测试数据）。
+> 
+> **环境判断规则**：
+> - `NODE_ENV=production`
+> - `PRISMA_SEED_MODE=production`
+> - `DATABASE_URL` 包含 `production` 或 `prod`
 
 **默认管理员账户**（自动创建）：
 - 用户名/邮箱：`admin` 或 `admin@admin.com`
 - 密码：`admin@123`
+- ⚠️ **生产环境重要提示**：部署后请立即登录并修改密码！
 
 **手动运行种子脚本**（如果需要重新初始化）：
 ```bash
@@ -224,26 +247,28 @@ npm run lint         # 运行 ESLint
 |--------|------|--------|
 | `AUTH_URL` | NextAuth v5 认证 URL | 同 `NEXTAUTH_URL` |
 
-## 🚢 部署
+## 🚢 生产环境部署
 
 ### 部署前准备
 
-1. **环境变量配置**
+1. **环境变量配置（生产环境）**
    - 配置生产环境的 `DATABASE_URL`
    - 配置生产环境的 `NEXTAUTH_URL`（使用 HTTPS）
    - 生成新的 `NEXTAUTH_SECRET`
+   - 设置 `NODE_ENV=production` 或确保 `DATABASE_URL` 包含 `production`/`prod`（用于自动判断环境）
 
-2. **数据库迁移（自动创建管理员账户）**
+2. **数据库迁移（生产环境，自动创建管理员账户）**
    ```bash
+   # 生产环境迁移命令
    npx prisma migrate deploy
    npx prisma generate
    ```
    
-   > 💡 **自动种子功能**：运行 `prisma migrate deploy` 后，Prisma 会自动运行种子脚本（`prisma/seed.ts`），根据环境自动判断：
-   > - **生产环境**：仅创建管理员账户
-   > - **开发环境**：创建管理员账户 + 测试数据（分类、标签、文章）
+   > 💡 **自动种子功能**：运行 `prisma migrate deploy` 后，Prisma 会自动运行种子脚本（`prisma/seed.ts`）。
    > 
-   > 环境判断规则：
+   > **生产环境**会自动检测并仅创建管理员账户（不创建测试数据）。
+   > 
+   > **环境判断规则**：
    > - `NODE_ENV=production`
    > - `PRISMA_SEED_MODE=production`
    > - `DATABASE_URL` 包含 `production` 或 `prod`
@@ -253,15 +278,16 @@ npm run lint         # 运行 ESLint
    - 密码：`admin@123`
    - ⚠️ **重要**：部署后请立即登录并修改密码！
 
-3. **手动运行种子脚本（可选）**
+3. **手动运行种子脚本（可选，通常不需要）**
    ```bash
    # 如果需要手动重新初始化数据，可以使用：
-   npm run seed          # 根据环境自动判断（开发环境：管理员+测试数据，生产环境：仅管理员）
+   npm run seed          # 根据环境自动判断（生产环境：仅管理员，开发环境：管理员+测试数据）
    # 或直接使用 Prisma 命令：
    npx prisma db seed
    ```
+   > ⚠️ **注意**：在运行种子脚本前，确保已设置正确的环境变量，以便脚本能正确判断为生产环境。
 
-4. **生产构建测试**
+4. **生产环境构建和启动**
    ```bash
    npm run build
    npm start
@@ -269,29 +295,34 @@ npm run lint         # 运行 ESLint
    
    > ✅ **无需额外步骤**：管理员账户已在步骤 2 中自动创建，可以直接登录使用！
 
-### 部署平台
+### 生产环境部署平台
 
 #### Vercel（推荐）
 
 1. 连接 GitHub 仓库到 Vercel
-2. 配置环境变量
+2. 配置生产环境变量（`DATABASE_URL`、`NEXTAUTH_URL`、`NEXTAUTH_SECRET`、`NODE_ENV=production`）
 3. 设置构建命令：`npm run build`
 4. 配置数据库连接
-5. 部署完成
+5. 在部署后运行数据库迁移：`npx prisma migrate deploy`（会自动创建管理员账户）
+6. 部署完成
 
 #### Railway
 
 1. 创建新项目
 2. 连接数据库服务
-3. 配置环境变量
-4. 自动部署
+3. 配置生产环境变量（包括 `NODE_ENV=production`）
+4. 在部署后运行数据库迁移：`npx prisma migrate deploy`
+5. 自动部署
 
 #### 自建服务器
 
-1. 安装 Node.js 18+
-2. 配置 Nginx 反向代理
-3. 使用 PM2 管理进程
-4. 配置 SSL 证书
+1. 安装 Node.js 18+ 和 PostgreSQL
+2. 配置生产环境变量（`.env.production` 或系统环境变量）
+3. 运行数据库迁移：`npx prisma migrate deploy`
+4. 构建应用：`npm run build`
+5. 配置 Nginx 反向代理
+6. 使用 PM2 管理进程：`pm2 start npm --name "blog" -- start`
+7. 配置 SSL 证书（Let's Encrypt）
 
 详细部署说明请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)（如果存在）
 
