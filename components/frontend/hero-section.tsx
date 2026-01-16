@@ -81,17 +81,17 @@ export function HeroSection({ stats }: { stats: Stats }) {
       {/* 顶部导航 */}
       <nav className="absolute top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
-            {/* Logo */}
+          <div className="relative flex h-20 items-center justify-between">
+            {/* Logo - 左侧 */}
             <Link 
               href="/" 
-              className="text-2xl font-bold text-white hover:text-white/80 transition-colors"
+              className="text-2xl font-bold text-white hover:text-white/80 transition-colors flex-shrink-0"
             >
               个人博客
             </Link>
 
-            {/* 导航链接 */}
-            <div className="hidden md:flex items-center gap-8">
+            {/* 导航链接 - 绝对居中 */}
+            <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <Link 
                 href="/" 
                 className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
@@ -129,8 +129,8 @@ export function HeroSection({ stats }: { stats: Stats }) {
               </Link>
             </div>
 
-            {/* 右侧功能区 */}
-            <div className="flex items-center gap-4">
+            {/* 右侧功能区 - 靠右 */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               {/* 搜索按钮 */}
               <Link 
                 href="/search"
