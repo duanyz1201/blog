@@ -36,104 +36,133 @@ export default async function PostPage({
   return (
     <>
       <ReadingProgress />
-      <article className="container py-8 max-w-4xl">
-      <header className="mb-8">
-        {post.categories && post.categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.categories.map((category: any) => (
-              <Badge key={category.slug} variant="secondary">
-                {category.name}
-              </Badge>
-            ))}
+      <article className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl">
+        {/* 文章头部 */}
+        <header className="mb-12">
+          {/* 分类标签 */}
+          {post.categories && post.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {post.categories.map((category: any) => (
+                <Badge 
+                  key={category.slug} 
+                  variant="secondary"
+                  className="px-3 py-1 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                >
+                  {category.name}
+                </Badge>
+              ))}
+            </div>
+          )}
+          
+          {/* 标题和分享 */}
+          <div className="flex items-start justify-between gap-6 mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight flex-1">
+              {post.title}
+            </h1>
+            <ShareButtons 
+              title={post.title}
+              url={`/post/${post.slug}`}
+              description={post.excerpt || undefined}
+            />
+          </div>
+          
+          {/* 元数据 */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <span className="font-medium text-gray-900 dark:text-white">{post.author.name}</span>
+            <span>•</span>
+            <span title={formatDateTime(new Date(post.createdAt))}>
+              {formatDate(new Date(post.createdAt))}
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <span>👁</span>
+              {post.views}
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <span>💬</span>
+              {post.comments?.length || 0}
+            </span>
+          </div>
+          
+          {/* 标签 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-slate-800">
+              {post.tags.map((tag: any) => (
+                <Link
+                  key={tag.slug}
+                  href={`/tags/${tag.slug}`}
+                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-slate-800 rounded-full hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                >
+                  #{tag.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </header>
+
+        {/* 封面图 */}
+        {post.cover && (
+          <div className="mb-12 rounded-2xl overflow-hidden shadow-xl">
+            <img
+              src={post.cover}
+              alt={post.title}
+              className="w-full h-auto object-cover"
+              loading="lazy"
+            />
           </div>
         )}
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-4xl font-bold flex-1">{post.title}</h1>
-          <ShareButtons 
-            title={post.title}
-            url={`/post/${post.slug}`}
-            description={post.excerpt || undefined}
-          />
+
+        {/* 文章内容 */}
+        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mb-12">
+          <MarkdownContent content={post.content} />
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{post.author.name}</span>
-          <span>•</span>
-          <span title={formatDateTime(new Date(post.createdAt))}>
-            {formatDate(new Date(post.createdAt))}
-          </span>
-          <span>•</span>
-          <span>👁 {post.views}</span>
-          <span>•</span>
-          <span>💬 {post.comments?.length || 0}</span>
-        </div>
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {post.tags.map((tag: any) => (
-              <Link
-                key={tag.slug}
-                href={`/tags/${tag.slug}`}
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                #{tag.name}
-              </Link>
-            ))}
+
+        {/* 上一页/下一页导航 */}
+        <div className="border-t border-gray-200 dark:border-slate-800 pt-8 mt-12">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            {post.prevPost && (
+              <Button variant="outline" asChild className="flex-1 sm:flex-initial">
+                <Link href={`/post/${post.prevPost.slug}`} className="flex items-center gap-2">
+                  <span>←</span>
+                  <span className="truncate">{post.prevPost.title}</span>
+                </Link>
+              </Button>
+            )}
+            {post.nextPost && (
+              <Button variant="outline" asChild className="flex-1 sm:flex-initial">
+                <Link href={`/post/${post.nextPost.slug}`} className="flex items-center gap-2">
+                  <span className="truncate">{post.nextPost.title}</span>
+                  <span>→</span>
+                </Link>
+              </Button>
+            )}
           </div>
-        )}
-      </header>
-
-      {post.cover && (
-        <div className="mb-8 rounded-lg overflow-hidden shadow-lg">
-          <img
-            src={post.cover}
-            alt={post.title}
-            className="w-full h-auto"
-            loading="lazy"
-          />
-        </div>
-      )}
-
-      <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
-        <MarkdownContent content={post.content} />
-      </div>
-
-      <div className="border-t pt-8 mt-8">
-        <div className="flex justify-between items-center mb-8">
-          {post.prevPost && (
-            <Button variant="outline" asChild>
-              <Link href={`/post/${post.prevPost.slug}`}>
-                ← {post.prevPost.title}
-              </Link>
-            </Button>
-          )}
-          {post.nextPost && (
-            <Button variant="outline" asChild>
-              <Link href={`/post/${post.nextPost.slug}`}>
-                {post.nextPost.title} →
-              </Link>
-            </Button>
-          )}
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">评论 ({post.comments?.length || 0})</h2>
+        {/* 评论区域 */}
+        <div className="mt-16 pt-12 border-t border-gray-200 dark:border-slate-800">
+          <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+            评论 ({post.comments?.length || 0})
+          </h2>
           <CommentForm postId={post.id} />
           <div className="mt-8">
             <CommentList comments={post.comments || []} postId={post.id} />
           </div>
         </div>
-      </div>
 
-      {post.relatedPosts && post.relatedPosts.length > 0 && (
-        <div className="mt-16 border-t pt-12">
-          <h2 className="text-2xl font-bold mb-8">相关文章</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {post.relatedPosts.map((relatedPost: any) => (
-              <PostCard key={relatedPost.id} post={relatedPost} />
-            ))}
+        {/* 相关文章 */}
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <div className="mt-20 pt-16 border-t border-gray-200 dark:border-slate-800">
+            <h2 className="text-3xl font-bold mb-10 text-gray-900 dark:text-white">相关文章</h2>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {post.relatedPosts.map((relatedPost: any) => (
+                <PostCard key={relatedPost.id} post={relatedPost} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-    </article>
+        )}
+      </article>
     </>
   )
 }
