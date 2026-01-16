@@ -130,7 +130,7 @@ export function HeroSection({ stats }: { stats: Stats }) {
             </div>
 
             {/* 右侧功能区 - 靠右 */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-4 flex-shrink-0">
               {/* 搜索按钮 */}
               <Link 
                 href="/search"
@@ -148,7 +148,7 @@ export function HeroSection({ stats }: { stats: Stats }) {
               {/* 登录/注册按钮 */}
               {session ? (
                 <>
-                  <span className="text-sm text-white/90 hidden sm:inline">{session.user.name}</span>
+                  <span className="text-sm text-white/90 hidden sm:inline px-2">{session.user.name}</span>
                   <Button 
                     variant="outline" 
                     size="sm" 
