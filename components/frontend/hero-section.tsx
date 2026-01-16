@@ -22,35 +22,41 @@ type Stats = {
   totalViews: number | null
 }
 
-export function HeroSection({ stats }: { stats: Stats }) {
+export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats; siteName?: string }) {
   const { data: session } = useSession()
   const [currentImage, setCurrentImage] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
-  const [siteName, setSiteName] = useState("个人博客")
+  const [currentSiteName, setCurrentSiteName] = useState(siteName)
   const totalViews =
     typeof stats.totalViews === "number"
       ? stats.totalViews
       : (stats as { totalViews?: { _sum?: { views?: number | null } } })
           .totalViews?._sum?.views ?? 0
 
-  // 获取站点名称
+  // 如果 props 中没有传入站点名称，则从 API 获取
   useEffect(() => {
-    const fetchSiteName = async () => {
-      try {
-        const response = await fetch("/api/settings")
-        if (response.ok) {
-          const data = await response.json()
-          if (data.siteName) {
-            setSiteName(data.siteName)
+    if (!siteName || siteName === "个人博客") {
+      const fetchSiteName = async () => {
+        try {
+          const response = await fetch("/api/settings", {
+            cache: "no-store",
+          })
+          if (response.ok) {
+            const data = await response.json()
+            if (data.siteName) {
+              setCurrentSiteName(data.siteName)
+            }
           }
+        } catch (error) {
+          console.error("获取站点名称失败:", error)
         }
-      } catch (error) {
-        console.error("获取站点名称失败:", error)
       }
+      
+      fetchSiteName()
+    } else {
+      setCurrentSiteName(siteName)
     }
-    
-    fetchSiteName()
-  }, [])
+  }, [siteName])
 
   useEffect(() => {
     setIsLoaded(true)
@@ -107,7 +113,7 @@ export function HeroSection({ stats }: { stats: Stats }) {
               href="/" 
               className="text-2xl font-bold text-white hover:text-white/80 transition-colors flex-shrink-0"
             >
-              {siteName}
+              {currentSiteName}
             </Link>
 
             {/* 导航链接 - 绝对居中 */}

@@ -7,6 +7,9 @@ import { CategoryList } from "@/components/frontend/category-list"
 import { TagCloud } from "@/components/frontend/tag-cloud"
 import { HeroSection } from "@/components/frontend/hero-section"
 
+// 强制动态渲染，确保获取最新数据
+export const dynamic = 'force-dynamic'
+
 async function getHomepageData() {
   const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/homepage`, {
     cache: "no-store",
@@ -38,15 +41,31 @@ async function getPosts(page = 1) {
   return res.json()
 }
 
+async function getSiteName() {
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/settings`, {
+      cache: "no-store",
+    })
+    if (res.ok) {
+      const data = await res.json()
+      return data.siteName || "个人博客"
+    }
+  } catch (error) {
+    console.error("获取站点名称失败:", error)
+  }
+  return "个人博客"
+}
+
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: { page?: string }
 }) {
   const page = parseInt(searchParams.page || "1")
-  const [homepageData, postsData] = await Promise.all([
+  const [homepageData, postsData, siteName] = await Promise.all([
     getHomepageData(),
     getPosts(page),
+    getSiteName(),
   ])
 
   const { featuredPost, popularPosts, categories, tags, stats } = homepageData
@@ -55,7 +74,7 @@ export default async function HomePage({
   return (
     <div className="min-h-screen">
       {/* Hero 全屏区域 */}
-      <HeroSection stats={stats} />
+      <HeroSection stats={stats} siteName={siteName} />
 
       {/* 主要内容区域 - 简洁背景 */}
       <div className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
