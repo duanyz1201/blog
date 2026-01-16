@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Bold, Italic, List, Code, FileText, Eye } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 
 // 自定义 CodeBlock 扩展：支持 ```bash 直接创建代码块（不需要空格）
 const CustomCodeBlock = CodeBlock.extend({
@@ -63,7 +63,11 @@ export function PostEditor({
 }: PostEditorProps) {
   // 添加 Markdown 源代码编辑模式状态
   const [isMarkdownMode, setIsMarkdownMode] = useState(false)
+  // 保存原始的 Markdown 源代码，避免格式丢失
+  const originalMarkdownRef = useRef(initialData?.content || "")
   const [markdownSource, setMarkdownSource] = useState(initialData?.content || "")
+  // 标记是否在可视化模式下进行了编辑
+  const hasVisualEditRef = useRef(false)
 
   const editor = useEditor({
     extensions: [
@@ -81,6 +85,8 @@ export function PostEditor({
         html: false,
         transformPastedText: true,
         transformCopiedText: true,
+        // 使用 GitHub Flavored Markdown 以更好地处理代码块等格式
+        transformCopiedHTML: false,
       }),
       Placeholder.configure({
         placeholder: "开始编写文章内容...",
@@ -89,10 +95,10 @@ export function PostEditor({
     content: initialData?.content || "",
     contentType: 'markdown',
     immediatelyRender: false,
-    onUpdate: ({ editor }) => {
-      // 当编辑器内容更新时，同步更新 Markdown 源代码
+    onUpdate: () => {
+      // 标记在可视化模式下进行了编辑
       if (!isMarkdownMode) {
-        setMarkdownSource(editor.getMarkdown())
+        hasVisualEditRef.current = true
       }
     },
     editorProps: {
@@ -106,16 +112,50 @@ export function PostEditor({
   const toggleMarkdownMode = () => {
     if (isMarkdownMode) {
       // 从源代码模式切换到可视化模式
-      const newSource = markdownSource
-      editor?.commands.setContent(newSource, false, { contentType: 'markdown' })
+      // 使用用户编辑的源代码，而不是重新序列化
+      const newSource = markdownSource.trim()
+      // 更新原始引用
+      originalMarkdownRef.current = newSource
+      hasVisualEditRef.current = false
+      // 使用更可靠的方式设置内容
+      if (editor) {
+        // 直接使用 setContent 设置 Markdown 内容
+        // 注意：setContent 的第二个参数是选项对象，包含 contentType 和 emitUpdate
+        try {
+          editor.commands.setContent(newSource, { 
+            contentType: 'markdown',
+            emitUpdate: false  // 避免触发 onUpdate
+          })
+        } catch (error) {
+          console.error('Error setting content:', error)
+          // 如果出错，尝试使用 HTML 方式（作为后备）
+          editor.commands.setContent(newSource, { emitUpdate: false })
+        }
+      }
       setIsMarkdownMode(false)
     } else {
       // 从可视化模式切换到源代码模式
-      const currentMarkdown = editor?.getMarkdown() || ""
-      setMarkdownSource(currentMarkdown)
+      // 如果用户在可视化模式下进行了编辑，才从编辑器获取 Markdown
+      // 否则使用保存的原始源代码
+      if (hasVisualEditRef.current) {
+        const currentMarkdown = editor?.getMarkdown() || ""
+        setMarkdownSource(currentMarkdown)
+        originalMarkdownRef.current = currentMarkdown
+        hasVisualEditRef.current = false
+      } else {
+        // 使用保存的原始源代码
+        setMarkdownSource(originalMarkdownRef.current)
+      }
       setIsMarkdownMode(true)
     }
   }
+
+  // 当 markdownSource 在源代码模式下更新时，同步更新原始引用
+  useEffect(() => {
+    if (isMarkdownMode) {
+      originalMarkdownRef.current = markdownSource
+    }
+  }, [markdownSource, isMarkdownMode])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
