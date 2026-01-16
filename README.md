@@ -130,7 +130,7 @@ npx prisma migrate dev
 npx prisma studio
 ```
 
-> 💡 **提示**：迁移命令会自动运行种子脚本，详见下方"数据库初始化说明"章节。
+> 💡 **提示**：`prisma migrate dev` 会自动运行种子脚本，详见下方"数据库初始化说明"章节。
 
 **生产环境**：
 
@@ -138,12 +138,19 @@ npx prisma studio
 # 生成 Prisma Client
 npx prisma generate
 
-# 运行数据库迁移（自动运行种子脚本）
+# 运行数据库迁移（创建表结构）
 npx prisma migrate deploy
+
+# 手动运行种子脚本（创建管理员账户）
+npm run seed
+# 或
+npx prisma db seed
 
 # 查看数据库（可选）
 npx prisma studio
 ```
+
+> ⚠️ **重要**：`prisma migrate deploy` **不会自动运行种子脚本**，需要手动运行 `npm run seed` 来创建管理员账户。详见下方"数据库初始化说明"章节。
 
 ### 5. 运行开发服务器
 
@@ -157,7 +164,9 @@ npm run dev
 
 ### 自动种子功能
 
-运行 `prisma migrate dev`（开发环境）或 `prisma migrate deploy`（生产环境）时，Prisma 会自动执行 `prisma/seed.ts` 种子脚本。
+**开发环境**：运行 `prisma migrate dev` 时，Prisma 会**自动执行** `prisma/seed.ts` 种子脚本。
+
+**生产环境**：`prisma migrate deploy` **不会自动运行**种子脚本，需要手动执行 `npm run seed` 来创建管理员账户。
 
 ### 环境判断规则
 
@@ -181,7 +190,7 @@ npm run dev
 
 ### 默认管理员账户
 
-迁移后会自动创建以下管理员账户：
+迁移后需要手动运行种子脚本来创建以下管理员账户：
 
 - **用户名/邮箱**：`admin` 或 `admin@admin.com`
 - **密码**：`admin@123`
@@ -189,7 +198,17 @@ npm run dev
 
 ### 手动运行种子脚本
 
-如果需要重新初始化数据（通常不需要，迁移时会自动运行）：
+**生产环境**：在运行 `prisma migrate deploy` 后，必须手动运行种子脚本：
+
+```bash
+npm run seed
+# 或
+npx prisma db seed
+```
+
+**开发环境**：`prisma migrate dev` 会自动运行种子脚本，通常不需要手动运行。
+
+如果需要重新初始化数据：
 
 ```bash
 npm run seed          # 根据环境自动判断
@@ -327,18 +346,29 @@ npm run lint         # 运行 ESLint
    ```bash
    npx prisma generate
    npx prisma migrate deploy
+   npm run seed  # 手动运行种子脚本创建管理员账户
    ```
 
-   > 💡 迁移会自动运行种子脚本并创建管理员账户，详见上方"数据库初始化说明"章节。
+   > ⚠️ **重要**：`prisma migrate deploy` **不会自动运行**种子脚本，需要手动运行 `npm run seed` 来创建管理员账户。详见上方"数据库初始化说明"章节。
 
-3. **构建和启动应用**
+3. **运行种子脚本（创建管理员账户）**
+
+   ```bash
+   npm run seed
+   # 或
+   npx prisma db seed
+   ```
+
+   > ⚠️ **重要**：必须在运行 `prisma migrate deploy` 后手动运行种子脚本来创建管理员账户。
+
+4. **构建和启动应用**
 
    ```bash
    npm run build
    npm start
    ```
 
-   > ✅ **无需额外步骤**：管理员账户已在数据库迁移时自动创建，可以直接登录使用！
+   > ✅ 管理员账户已通过种子脚本创建，可以直接登录使用！
 
 ### 生产环境部署平台
 
@@ -348,8 +378,9 @@ npm run lint         # 运行 ESLint
 2. 配置生产环境变量（`DATABASE_URL`、`NEXTAUTH_URL`、`NEXTAUTH_SECRET`、`NODE_ENV=production`）
 3. 设置构建命令：`npm run build`
 4. 配置数据库连接
-5. 在部署后运行数据库迁移：`npx prisma migrate deploy`（会自动创建管理员账户）
-6. 部署完成
+5. 在部署后运行数据库迁移：`npx prisma migrate deploy`
+6. 手动运行种子脚本：`npm run seed`（创建管理员账户）
+7. 部署完成
 
 #### Railway
 
@@ -357,7 +388,8 @@ npm run lint         # 运行 ESLint
 2. 连接数据库服务
 3. 配置生产环境变量（包括 `NODE_ENV=production`）
 4. 在部署后运行数据库迁移：`npx prisma migrate deploy`
-5. 自动部署
+5. 手动运行种子脚本：`npm run seed`（创建管理员账户）
+6. 自动部署
 
 #### 自建服务器（详细步骤）
 
@@ -409,11 +441,12 @@ sudo nano .env
 
 ```bash
 npx prisma generate
-npx prisma migrate deploy
-npx prisma studio  # 可选，用于验证数据
+npx prisma migrate deploy  # 创建表结构
+npm run seed               # 手动运行种子脚本创建管理员账户
+npx prisma studio          # 可选，用于验证数据
 ```
 
-> 💡 迁移会自动运行种子脚本并创建管理员账户，详见上方"数据库初始化说明"章节。
+> ⚠️ **重要**：`prisma migrate deploy` **不会自动运行**种子脚本，必须手动运行 `npm run seed` 来创建管理员账户。详见上方"数据库初始化说明"章节。
 
 **4. 构建应用**
 
