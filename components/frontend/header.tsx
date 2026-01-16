@@ -26,17 +26,17 @@ export function Header() {
   return (
     <header className="sticky top-0 z-[100] w-full bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 shadow-sm">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-            {/* Logo */}
+        <div className="relative flex h-20 items-center justify-between">
+            {/* Logo - 左侧 */}
             <Link 
               href="/" 
-              className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0"
             >
               个人博客
             </Link>
 
-            {/* 导航链接 */}
-            <div className="hidden md:flex items-center gap-8">
+            {/* 导航链接 - 绝对居中 */}
+            <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <Link 
                 href="/" 
                 className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -74,8 +74,8 @@ export function Header() {
               </Link>
             </div>
 
-            {/* 右侧功能区 */}
-            <div className="flex items-center gap-4">
+            {/* 右侧功能区 - 靠右 */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               {/* 搜索按钮 */}
               <Link 
                 href="/search"
