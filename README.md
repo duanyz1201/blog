@@ -66,13 +66,17 @@ npm install
 
 ### 3. 环境变量配置
 
-创建 `.env.local` 文件：
+创建 `.env` 文件：
 
 ```bash
-cp .env.example .env.local
+# 如果有 .env.example 模板文件，可以复制它
+cp .env.example .env
+
+# 如果没有 .env.example，直接创建
+touch .env
 ```
 
-编辑 `.env.local` 文件，配置以下环境变量：
+编辑 `.env` 文件，配置以下环境变量：
 
 ```env
 # 数据库连接
@@ -85,6 +89,8 @@ NEXTAUTH_SECRET="your-secret-key-here"  # 使用 openssl rand -base64 32 生成
 # 可选：AUTH_URL（NextAuth v5）
 AUTH_URL="http://localhost:3000"
 ```
+
+> 💡 **提示**：使用 `.env` 文件而不是 `.env.local`，因为 Prisma CLI 默认只读取 `.env` 文件，而 Next.js 也会自动读取 `.env` 文件。这样可以确保 Next.js 和 Prisma 命令都能正常工作。
 
 **生成 NEXTAUTH_SECRET**：
 
@@ -292,7 +298,7 @@ npm run lint         # 运行 ESLint
 
 1. **环境变量配置（生产环境）**
 
-   创建 `.env.production` 文件或设置系统环境变量：
+   创建 `.env` 文件（或 `.env.production` 文件，部署时复制为 `.env`）：
 
    ```env
    # 数据库连接（生产环境）
@@ -312,6 +318,7 @@ npm run lint         # 运行 ESLint
    - 生产环境的 `NEXTAUTH_SECRET` 必须与开发环境不同
    - `NEXTAUTH_URL` 必须使用 HTTPS
    - 确保数据库连接字符串正确且可访问
+   - 使用 `.env` 文件确保 Next.js 和 Prisma CLI 都能读取环境变量
 
 2. **数据库迁移和初始化**
 
@@ -391,8 +398,9 @@ cd blog
 npm ci --production=false  # 需要 devDependencies 用于构建
 
 # 配置环境变量
-sudo nano .env.production
+sudo nano .env
 # 填入生产环境变量（见上方环境变量配置）
+# 注意：.env 文件会被 Next.js 和 Prisma CLI 同时读取
 ```
 
 **3. 数据库迁移和初始化**
@@ -732,7 +740,7 @@ npm run build
 
 ### 部署安全清单
 
-- ✅ 确保 `.env.local`、`.env.production` 文件已添加到 `.gitignore`
+- ✅ 确保 `.env`、`.env.local`、`.env.production` 文件已添加到 `.gitignore`
 - ✅ 生产环境使用强密码（数据库、管理员账户）
 - ✅ **部署后立即登录并修改默认管理员密码**（admin@123）
 - ✅ 配置 HTTPS（强制使用 SSL/TLS）
