@@ -4,17 +4,55 @@ import { Badge } from "@/components/ui/badge"
 import { Plus } from "lucide-react"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
+import { prisma } from "@/lib/db"
 
 async function getPosts() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/posts`, {
-    cache: "no-store",
-  })
-  
-  if (!res.ok) {
-    return { posts: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } }
+  try {
+    const page = 1
+    const limit = 20
+    const skip = (page - 1) * limit
+
+    const [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
+          categories: true,
+          tags: true,
+          _count: {
+            select: {
+              comments: true,
+            },
+          },
+        },
+      }),
+      prisma.post.count(),
+    ])
+
+    return {
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    }
+  } catch (error) {
+    console.error("获取文章列表错误:", error)
+    return {
+      posts: [],
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    }
   }
-  
-  return res.json()
 }
 
 export default async function PostsPage() {

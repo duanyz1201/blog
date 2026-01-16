@@ -3,17 +3,49 @@ import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
 import Link from "next/link"
+import { prisma } from "@/lib/db"
 
 async function getComments() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/comments`, {
-    cache: "no-store",
-  })
-  
-  if (!res.ok) {
-    return { comments: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } }
+  try {
+    const page = 1
+    const limit = 20
+    const skip = (page - 1) * limit
+
+    const [comments, total] = await Promise.all([
+      prisma.comment.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          post: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      }),
+      prisma.comment.count(),
+    ])
+
+    return {
+      comments,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    }
+  } catch (error) {
+    console.error("获取评论列表错误:", error)
+    return {
+      comments: [],
+      pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    }
   }
-  
-  return res.json()
 }
 
 export default async function CommentsPage() {

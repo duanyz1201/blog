@@ -1,32 +1,42 @@
 import { notFound, redirect } from "next/navigation"
 import { PostEditor } from "@/components/admin/post-editor"
+import { prisma } from "@/lib/db"
 
 async function getPost(id: string) {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/posts/${id}`, {
-    cache: "no-store",
-  })
-  
-  if (!res.ok) {
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      include: {
+        categories: true,
+        tags: true,
+      },
+    })
+    return post
+  } catch (error) {
+    console.error("获取文章错误:", error)
     return null
   }
-  
-  return res.json()
 }
 
 async function getCategoriesAndTags() {
-  const [categoriesRes, tagsRes] = await Promise.all([
-    fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/categories`, {
-      cache: "no-store",
-    }),
-    fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/tags`, {
-      cache: "no-store",
-    }),
-  ])
-
-  const categories = categoriesRes.ok ? await categoriesRes.json() : []
-  const tags = tagsRes.ok ? await tagsRes.json() : []
-
-  return { categories, tags }
+  try {
+    const [categories, tags] = await Promise.all([
+      prisma.category.findMany({
+        orderBy: {
+          name: "asc",
+        },
+      }),
+      prisma.tag.findMany({
+        orderBy: {
+          name: "asc",
+        },
+      }),
+    ])
+    return { categories, tags }
+  } catch (error) {
+    console.error("获取分类和标签错误:", error)
+    return { categories: [], tags: [] }
+  }
 }
 
 export default async function EditPostPage({
@@ -34,7 +44,8 @@ export default async function EditPostPage({
 }: {
   params: { id: string }
 }) {
-  const post = await getPost(params.id)
+  const postId = params.id
+  const post = await getPost(postId)
   const { categories, tags } = await getCategoriesAndTags()
 
   if (!post) {
@@ -44,19 +55,39 @@ export default async function EditPostPage({
   async function updatePost(data: any) {
     "use server"
     
-    const response = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/posts/${params.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
+    const { requireAdmin } = await import("@/lib/auth-helpers")
+    const { postSchema } = await import("@/lib/validations")
+    const { prisma } = await import("@/lib/db")
+    
+    try {
+      await requireAdmin()
+      const validatedData = postSchema.parse(data)
+      
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          title: validatedData.title,
+          slug: validatedData.slug,
+          content: validatedData.content,
+          excerpt: validatedData.excerpt,
+          cover: validatedData.cover || null,
+          status: validatedData.status,
+          categories: {
+            set: [],
+            connect: validatedData.categoryIds?.map((id) => ({ id })) || [],
+          },
+          tags: {
+            set: [],
+            connect: validatedData.tagIds?.map((id) => ({ id })) || [],
+          },
+        },
+      })
+      
+      redirect("/admin/posts")
+    } catch (error: any) {
+      console.error("更新文章错误:", error)
       throw new Error("更新文章失败")
     }
-
-    redirect("/admin/posts")
   }
 
   return (

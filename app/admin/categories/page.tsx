@@ -2,17 +2,27 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus } from "lucide-react"
 import Link from "next/link"
+import { prisma } from "@/lib/db"
 
 async function getCategories() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/categories`, {
-    cache: "no-store",
-  })
-  
-  if (!res.ok) {
+  try {
+    const categories = await prisma.category.findMany({
+      include: {
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+    return categories
+  } catch (error) {
+    console.error("获取分类列表错误:", error)
     return []
   }
-  
-  return res.json()
 }
 
 export default async function CategoriesPage() {

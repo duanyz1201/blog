@@ -77,16 +77,188 @@ body {
   @apply text-foreground;
 }
 
-.prose pre {
-  @apply bg-muted rounded-lg p-4 overflow-x-auto;
+/* 行内代码样式 */
+.prose code {
+  @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-slate-800 dark:text-slate-200;
 }
 
-.prose code {
-  @apply bg-muted px-1 py-0.5 rounded text-sm;
+/* 代码块样式 - 由 CodeBlock 组件处理，这里只保留基础样式 */
+.prose pre {
+  @apply m-0;
 }
 
 .prose pre code {
-  @apply bg-transparent p-0;
+  @apply bg-transparent p-0 text-inherit;
+}
+
+/* Highlight.js 代码高亮样式覆盖 - 深色主题 */
+.prose pre code.hljs {
+  @apply bg-transparent;
+}
+
+/* 确保代码块中的高亮样式正确显示 */
+.hljs {
+  color: #e5e7eb !important;
+  background: transparent !important;
+  display: block !important;
+  overflow-x: auto !important;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #6b7280 !important;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #60a5fa !important;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #34d399 !important;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #a78bfa !important;
+  font-weight: 600;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #f472b6 !important;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #60a5fa !important;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #34d399 !important;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #f472b6 !important;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #fbbf24 !important;
+}
+
+.hljs-meta {
+  color: #6b7280 !important;
+}
+
+.hljs-deletion {
+  background: #ef4444 !important;
+}
+
+.hljs-addition {
+  background: #10b981 !important;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
+
+/* 代码块背景色强制应用 */
+.code-block-bg {
+  background-color: rgb(9, 28, 44) !important;
+}
+
+/* 代码块容器内的样式 */
+[class*="code-block"] .hljs,
+pre code.hljs {
+  background: transparent !important;
+  color: #e5e7eb !important;
+}
+
+/* 确保代码块内的所有高亮元素都正确显示 - 但不要覆盖高亮颜色 */
+pre code.hljs * {
+  /* 移除 color: inherit，让 highlight.js 的颜色样式生效 */
+}
+
+/* 确保高亮类正确应用 */
+pre code.hljs,
+code.hljs {
+  display: block !important;
+}
+
+/* 确保高亮后的 span 元素正确显示 */
+pre code.hljs span,
+code.hljs span {
+  display: inline !important;
+  color: inherit !important;
+}
+
+/* 确保 highlight.js 的样式不被覆盖 - 针对 bash 等语言 */
+pre code.language-bash,
+pre code.language-bash * {
+  color: inherit !important;
+}
+
+/* 代码块行高对齐 */
+pre {
+  line-height: 1.5rem !important;
+  margin: 0 !important;
+}
+
+pre code {
+  display: block;
+  line-height: 1.5rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+pre code > * {
+  line-height: 1.5rem !important;
+  display: inline;
+  vertical-align: baseline !important;
+}
+
+/* 确保代码块内的每一行都有正确的行高和基线对齐 */
+pre code .hljs-line,
+pre code span,
+pre code .hljs-keyword,
+pre code .hljs-string,
+pre code .hljs-comment,
+pre code .hljs-number,
+pre code .hljs-variable,
+pre code br {
+  line-height: 1.5rem !important;
+  display: inline;
+  vertical-align: baseline !important;
+}
+
+/* 确保代码块内的换行符也正确对齐 */
+pre code br {
+  line-height: 1.5rem !important;
+  height: 1.5rem !important;
+  display: block;
+  content: '';
 }
 
 /* 动态柔光背景 */

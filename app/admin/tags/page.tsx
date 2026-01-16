@@ -1,17 +1,27 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus } from "lucide-react"
+import { prisma } from "@/lib/db"
 
 async function getTags() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/tags`, {
-    cache: "no-store",
-  })
-  
-  if (!res.ok) {
+  try {
+    const tags = await prisma.tag.findMany({
+      include: {
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+    return tags
+  } catch (error) {
+    console.error("获取标签列表错误:", error)
     return []
   }
-  
-  return res.json()
 }
 
 export default async function TagsPage() {

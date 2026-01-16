@@ -48,6 +48,7 @@ export function PostEditor({
       }),
     ],
     content: initialData?.content || "",
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         class: "prose prose-slate dark:prose-invert max-w-none min-h-[400px] p-4 focus:outline-none",

@@ -1,22 +1,72 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, MessageSquare, Eye, TrendingUp } from "lucide-react"
+import { FileText, MessageSquare, Eye } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
+import { prisma } from "@/lib/db"
 
 async function getDashboardData() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/dashboard`, {
-    cache: "no-store",
-    headers: {
-      Cookie: typeof window !== "undefined" ? document.cookie : "",
-    },
-  })
-  
-  if (!res.ok) {
-    return { stats: { totalPosts: 0, totalComments: 0, totalViews: 0 }, recentPosts: [], recentComments: [] }
+  try {
+    const [
+      totalPosts,
+      totalComments,
+      totalViews,
+      recentPosts,
+      recentComments,
+    ] = await Promise.all([
+      prisma.post.count(),
+      prisma.comment.count(),
+      prisma.post.aggregate({
+        _sum: {
+          views: true,
+        },
+      }),
+      prisma.post.findMany({
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
+      prisma.comment.findMany({
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          post: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    return {
+      stats: {
+        totalPosts,
+        totalComments,
+        totalViews: totalViews._sum.views || 0,
+      },
+      recentPosts,
+      recentComments,
+    }
+  } catch (error) {
+    console.error("获取仪表盘数据错误:", error)
+    return {
+      stats: { totalPosts: 0, totalComments: 0, totalViews: 0 },
+      recentPosts: [],
+      recentComments: [],
+    }
   }
-  
-  return res.json()
 }
 
 export default async function DashboardPage() {
