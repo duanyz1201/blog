@@ -63,49 +63,48 @@ export function CodeBlock({ children, className, language }: CodeBlockProps) {
   }
 
   return (
-    <div className="relative group my-6">
+    <div className="relative group my-3">
       {/* 代码块容器 */}
       <div 
         className="relative rounded-lg overflow-hidden border border-blue-500/30 shadow-xl code-block-bg"
         style={{ backgroundColor: 'rgb(9, 28, 44)' }}
       >
-        {/* 顶部栏（仅语言标签） */}
-        {language && (
-          <div 
-            className="px-4 py-2 code-block-bg"
-            style={{ backgroundColor: 'rgb(9, 28, 44)' }}
-          >
+        {/* 顶部栏（语言标签和复制按钮） */}
+        <div 
+          className="relative flex items-center justify-between px-4 py-1.5 border-b border-blue-500/20 code-block-bg"
+          style={{ backgroundColor: 'rgb(9, 28, 44)' }}
+        >
+          {language && (
             <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">
               {language}
             </span>
-          </div>
-        )}
-
-        {/* 代码内容区域 */}
-        <div className="relative overflow-x-auto">
-          {/* 复制按钮 - 位于代码块右上角 */}
+          )}
+          {/* 复制按钮 - 移到顶部栏右侧 */}
           <Button
             variant="ghost"
             size="sm"
             onClick={handleCopy}
-            className="absolute top-2 right-2 z-10 h-7 px-2 text-xs text-slate-400 hover:text-white hover:bg-blue-500/20 transition-colors bg-[rgb(9,28,44)]/80 backdrop-blur-sm"
-            style={{ backgroundColor: 'rgba(9, 28, 44, 0.8)' }}
+            className="h-6 px-2 text-xs text-slate-400 hover:text-white hover:bg-blue-500/20 transition-colors"
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 mr-1.5" />
+                <Check className="h-3 w-3 mr-1" />
                 已复制
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5 mr-1.5" />
+                <Copy className="h-3 w-3 mr-1" />
                 复制
               </>
             )}
           </Button>
+        </div>
+
+        {/* 代码内容区域 */}
+        <div className="relative overflow-x-auto">
           <div className="flex">
             {/* 行号列 */}
-            <div className="flex-shrink-0 px-4 py-4 text-right select-none border-r border-blue-500/20">
+            <div className="flex-shrink-0 px-4 py-2 text-right select-none border-r border-blue-500/20">
               <div 
                 className="text-xs text-slate-500 font-mono" 
                 style={{ 
@@ -136,9 +135,9 @@ export function CodeBlock({ children, className, language }: CodeBlockProps) {
               <pre 
                 className="m-0 overflow-x-auto bg-transparent"
                 style={{ 
-                  padding: '1rem',
-                  paddingTop: '1rem',
-                  paddingBottom: '1rem',
+                  padding: '0.5rem 1rem',
+                  paddingTop: '0.5rem',
+                  paddingBottom: '0.5rem',
                   lineHeight: '1.5rem',
                   margin: 0
                 }}
