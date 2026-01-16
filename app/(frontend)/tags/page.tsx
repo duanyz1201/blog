@@ -18,28 +18,30 @@ export default async function TagsPage() {
   const tags = await getTags()
 
   return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8">所有标签</h1>
-      
-      {tags.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>暂无标签</p>
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag: any) => (
-            <Link
-              key={tag.id}
-              href={`/tags/${tag.slug}`}
-              className="inline-block"
-            >
-              <Badge variant="outline" className="text-base px-4 py-2 hover:bg-accent">
-                {tag.name} ({tag._count.posts})
-              </Badge>
-            </Link>
-          ))}
-        </div>
-      )}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">所有标签</h1>
+        
+        {tags.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>暂无标签</p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            {tags.map((tag: any) => (
+              <Link
+                key={tag.id}
+                href={`/tags/${tag.slug}`}
+                className="inline-block"
+              >
+                <Badge variant="outline" className="text-base px-4 py-2 hover:bg-accent">
+                  {tag.name} ({tag._count.posts})
+                </Badge>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

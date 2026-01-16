@@ -29,32 +29,34 @@ export default async function CategoryPage({
   }
 
   return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8">分类: {params.slug}</h1>
-      
-      {posts.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>该分类下暂无文章</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post: any) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">分类: {params.slug}</h1>
+        
+        {posts.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>该分类下暂无文章</p>
           </div>
-          
-          {pagination.totalPages > 1 && (
-            <div className="mt-12">
-              <Pagination
-                currentPage={page}
-                totalPages={pagination.totalPages}
-                baseUrl={`/categories/${params.slug}`}
-              />
+        ) : (
+          <>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post: any) => (
+                <PostCard key={post.id} post={post} />
+              ))}
             </div>
-          )}
-        </>
-      )}
+            
+            {pagination.totalPages > 1 && (
+              <div className="mt-20 flex justify-center">
+                <Pagination
+                  currentPage={page}
+                  totalPages={pagination.totalPages}
+                  baseUrl={`/categories/${params.slug}`}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
