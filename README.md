@@ -202,10 +202,10 @@ blog/
 ├── prisma/                  # 数据库
 │   ├── schema.prisma        # 数据模型
 │   ├── seed.ts              # 自动种子脚本（迁移后自动运行，根据环境自动判断）
+│   ├── grant-permissions-complete.sql  # 数据库权限配置脚本
 │   └── migrations/          # 数据库迁移
 ├── public/                  # 静态资源
-├── types/                   # TypeScript 类型
-└── scripts/                 # 工具脚本
+└── types/                   # TypeScript 类型
 ```
 
 ## 📜 可用命令
@@ -249,13 +249,42 @@ npm run lint         # 运行 ESLint
 
 ## 🚢 生产环境部署
 
+### 📋 部署前检查清单
+
+在开始部署前，请确保完成以下检查：
+
+- [ ] Node.js 18+ 已安装
+- [ ] PostgreSQL 数据库已准备就绪
+- [ ] 生产环境数据库已创建
+- [ ] 所有环境变量已配置（见下方）
+- [ ] 域名已解析到服务器 IP（如使用域名）
+- [ ] 服务器防火墙已开放必要端口（3000、80、443）
+- [ ] SSL 证书已准备（或使用 Let's Encrypt 自动申请）
+
 ### 部署前准备
 
 1. **环境变量配置（生产环境）**
-   - 配置生产环境的 `DATABASE_URL`
-   - 配置生产环境的 `NEXTAUTH_URL`（使用 HTTPS）
-   - 生成新的 `NEXTAUTH_SECRET`
-   - 设置 `NODE_ENV=production` 或确保 `DATABASE_URL` 包含 `production`/`prod`（用于自动判断环境）
+
+   创建 `.env.production` 文件或设置系统环境变量：
+
+   ```env
+   # 数据库连接（生产环境）
+   DATABASE_URL="postgresql://user:password@host:5432/blog_prod?schema=public"
+   
+   # NextAuth.js 配置
+   NEXTAUTH_URL="https://yourdomain.com"  # 使用 HTTPS
+   NEXTAUTH_SECRET="your-production-secret-key"  # 使用 openssl rand -base64 32 生成
+   AUTH_URL="https://yourdomain.com"
+   
+   # 环境标识（用于自动判断环境）
+   NODE_ENV="production"
+   # 或者确保 DATABASE_URL 包含 production/prod
+   ```
+
+   **重要提示**：
+   - 生产环境的 `NEXTAUTH_SECRET` 必须与开发环境不同
+   - `NEXTAUTH_URL` 必须使用 HTTPS
+   - 确保数据库连接字符串正确且可访问
 
 2. **数据库迁移（生产环境，自动创建管理员账户）**
    ```bash
@@ -314,28 +343,419 @@ npm run lint         # 运行 ESLint
 4. 在部署后运行数据库迁移：`npx prisma migrate deploy`
 5. 自动部署
 
-#### 自建服务器
+#### 自建服务器（详细步骤）
 
-1. 安装 Node.js 18+ 和 PostgreSQL
-2. 配置生产环境变量（`.env.production` 或系统环境变量）
-3. 运行数据库迁移：`npx prisma migrate deploy`
-4. 构建应用：`npm run build`
-5. 配置 Nginx 反向代理
-6. 使用 PM2 管理进程：`pm2 start npm --name "blog" -- start`
-7. 配置 SSL 证书（Let's Encrypt）
+**1. 服务器环境准备**
+
+```bash
+# 更新系统
+sudo apt update && sudo apt upgrade -y
+
+# 安装 Node.js 18+
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 验证安装
+node --version  # 应显示 v18.x.x 或更高
+npm --version
+
+# 安装 PostgreSQL
+sudo apt install postgresql postgresql-contrib -y
+
+# 创建数据库和用户
+sudo -u postgres psql
+CREATE DATABASE blog_prod;
+CREATE USER blog_user WITH PASSWORD 'your_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE blog_prod TO blog_user;
+\q
+```
+
+**2. 部署应用代码**
+
+```bash
+# 克隆项目
+cd /var/www
+sudo git clone <repository-url> blog
+cd blog
+
+# 安装依赖
+npm ci --production=false  # 需要 devDependencies 用于构建
+
+# 配置环境变量
+sudo nano .env.production
+# 填入生产环境变量（见上方环境变量配置）
+```
+
+**3. 数据库迁移和初始化**
+
+```bash
+# 生成 Prisma Client
+npx prisma generate
+
+# 运行数据库迁移（会自动创建管理员账户）
+npx prisma migrate deploy
+
+# 验证数据库连接
+npx prisma studio  # 可选，用于验证数据
+```
+
+**4. 构建应用**
+
+```bash
+# 构建生产版本
+npm run build
+
+# 验证构建是否成功
+ls -la .next  # 应看到构建产物
+```
+
+**5. 配置 PM2 进程管理**
+
+```bash
+# 安装 PM2
+sudo npm install -g pm2
+
+# 创建 PM2 配置文件 ecosystem.config.js
+cat > ecosystem.config.js << EOF
+module.exports = {
+  apps: [{
+    name: 'blog',
+    script: 'npm',
+    args: 'start',
+    cwd: '/var/www/blog',
+    instances: 1,
+    exec_mode: 'fork',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    },
+    error_file: './logs/err.log',
+    out_file: './logs/out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    merge_logs: true,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G'
+  }]
+}
+EOF
+
+# 创建日志目录
+mkdir -p logs
+
+# 启动应用
+pm2 start ecosystem.config.js
+
+# 设置开机自启
+pm2 startup
+pm2 save
+
+# 查看状态
+pm2 status
+pm2 logs blog
+```
+
+**6. 配置 Nginx 反向代理**
+
+```bash
+# 安装 Nginx
+sudo apt install nginx -y
+
+# 创建 Nginx 配置文件
+sudo nano /etc/nginx/sites-available/blog
+```
+
+Nginx 配置内容：
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # 重定向到 HTTPS（配置 SSL 后启用）
+    # return 301 https://$server_name$request_uri;
+
+    # 临时配置（配置 SSL 前使用）
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # 静态文件缓存
+    location /_next/static {
+        proxy_pass http://localhost:3000;
+        proxy_cache_valid 200 60m;
+        add_header Cache-Control "public, immutable";
+    }
+}
+
+# HTTPS 配置（配置 SSL 后使用）
+# server {
+#     listen 443 ssl http2;
+#     server_name yourdomain.com www.yourdomain.com;
+#
+#     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+#
+#     location / {
+#         proxy_pass http://localhost:3000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+# }
+```
+
+启用配置：
+
+```bash
+# 创建符号链接
+sudo ln -s /etc/nginx/sites-available/blog /etc/nginx/sites-enabled/
+
+# 测试配置
+sudo nginx -t
+
+# 重启 Nginx
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+```
+
+**7. 配置 SSL 证书（Let's Encrypt）**
+
+```bash
+# 安装 Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# 申请证书（确保域名已解析到服务器）
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# 自动续期测试
+sudo certbot renew --dry-run
+
+# 证书会自动续期（通过 cron 任务）
+```
+
+**8. 防火墙配置**
+
+```bash
+# 允许 HTTP 和 HTTPS
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp  # SSH
+sudo ufw enable
+```
+
+**9. 验证部署**
+
+```bash
+# 检查应用状态
+pm2 status
+pm2 logs blog
+
+# 检查 Nginx 状态
+sudo systemctl status nginx
+
+# 测试访问
+curl http://localhost:3000
+curl http://yourdomain.com
+```
+
+### 🔧 常见问题排查
+
+**问题 1：应用无法启动**
+
+```bash
+# 检查日志
+pm2 logs blog
+tail -f logs/err.log
+
+# 检查端口占用
+sudo lsof -i :3000
+
+# 检查环境变量
+pm2 env 0
+```
+
+**问题 2：数据库连接失败**
+
+```bash
+# 测试数据库连接
+psql -h localhost -U blog_user -d blog_prod
+
+# 检查 DATABASE_URL 环境变量
+echo $DATABASE_URL
+
+# 检查 PostgreSQL 服务
+sudo systemctl status postgresql
+```
+
+**问题 3：Nginx 502 错误**
+
+```bash
+# 检查应用是否运行
+pm2 status
+
+# 检查 Nginx 错误日志
+sudo tail -f /var/log/nginx/error.log
+
+# 检查防火墙
+sudo ufw status
+```
+
+**问题 4：Prisma 迁移失败**
+
+```bash
+# 检查数据库权限
+psql -U blog_user -d blog_prod -c "\dt"
+
+# 重新生成 Prisma Client
+npx prisma generate
+
+# 查看迁移状态
+npx prisma migrate status
+```
+
+### 💾 数据库备份和恢复
+
+**备份数据库**：
+
+```bash
+# 创建备份
+pg_dump -U blog_user -d blog_prod > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# 压缩备份
+gzip backup_*.sql
+```
+
+**恢复数据库**：
+
+```bash
+# 解压备份
+gunzip backup_*.sql.gz
+
+# 恢复数据
+psql -U blog_user -d blog_prod < backup_*.sql
+```
+
+**自动备份脚本**（添加到 crontab）：
+
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加每日备份（每天凌晨 2 点）
+0 2 * * * pg_dump -U blog_user -d blog_prod | gzip > /backups/blog_$(date +\%Y\%m\%d).sql.gz
+```
+
+### 🔄 应用更新流程
+
+```bash
+# 1. 拉取最新代码
+cd /var/www/blog
+git pull origin main
+
+# 2. 安装依赖（如有更新）
+npm ci --production=false
+
+# 3. 运行数据库迁移
+npx prisma migrate deploy
+npx prisma generate
+
+# 4. 重新构建
+npm run build
+
+# 5. 重启应用
+pm2 restart blog
+
+# 6. 检查状态
+pm2 status
+pm2 logs blog
+```
+
+### 📊 监控和维护
+
+**查看应用日志**：
+
+```bash
+# PM2 日志
+pm2 logs blog --lines 100
+
+# 系统日志
+journalctl -u nginx -f
+```
+
+**性能监控**：
+
+```bash
+# PM2 监控
+pm2 monit
+
+# 系统资源
+htop
+```
+
+**定期维护**：
+
+```bash
+# 更新依赖（谨慎操作）
+npm audit
+npm update
+
+# 清理构建缓存
+rm -rf .next
+npm run build
+```
 
 详细部署说明请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)（如果存在）
 
 ## 🔐 安全注意事项
 
-- ✅ 确保 `.env.local` 文件已添加到 `.gitignore`
-- ✅ 生产环境使用强密码
-- ✅ **部署后立即修改默认管理员密码**
-- ✅ 配置 HTTPS
-- ✅ 定期更新依赖包
-- ✅ 配置数据库连接池
+### 部署安全清单
+
+- ✅ 确保 `.env.local`、`.env.production` 文件已添加到 `.gitignore`
+- ✅ 生产环境使用强密码（数据库、管理员账户）
+- ✅ **部署后立即登录并修改默认管理员密码**（admin@123）
+- ✅ 配置 HTTPS（强制使用 SSL/TLS）
+- ✅ 定期更新依赖包（`npm audit` 检查安全漏洞）
+- ✅ 配置数据库连接池（Prisma 已自动处理）
 - ✅ 设置适当的 CORS 策略
-- ✅ 生产环境使用 `npm run seed:production` 而非 `npm run seed`（避免导入测试数据）
+- ✅ 使用环境变量存储敏感信息，不要硬编码
+- ✅ 配置防火墙，只开放必要端口
+- ✅ 定期备份数据库
+- ✅ 监控应用日志，及时发现异常
+- ✅ 使用 PM2 进程管理，确保应用自动重启
+- ✅ 配置 Nginx 安全头（见下方）
+
+### Nginx 安全头配置
+
+在 Nginx 配置中添加安全头：
+
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "no-referrer-when-downgrade" always;
+add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+```
+
+### 数据库安全
+
+- 使用强密码
+- 限制数据库访问 IP（如果可能）
+- 定期备份
+- 不要在生产环境使用默认端口（如果可能）
 
 ## 📚 相关文档
 
@@ -357,4 +777,16 @@ duanyz
 
 ---
 
-**注意**: 这是一个开发中的项目，部分功能可能仍在完善中。
+## 🆘 获取帮助
+
+如果遇到部署问题：
+
+1. 查看本文档的"常见问题排查"部分
+2. 检查应用日志：`pm2 logs blog`
+3. 检查 Nginx 日志：`sudo tail -f /var/log/nginx/error.log`
+4. 查看 Prisma 迁移状态：`npx prisma migrate status`
+5. 提交 Issue 到项目仓库
+
+---
+
+**注意**: 这是一个开发完成的项目，已准备好部署上线。如有问题，请参考上述部署文档。
