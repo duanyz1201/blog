@@ -6,6 +6,8 @@ import { Role } from "@prisma/client"
 import type { NextAuthConfig } from "next-auth"
 
 const config: NextAuthConfig = {
+  // 信任所有主机（开发环境）或配置信任的主机列表
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -20,7 +22,7 @@ const config: NextAuthConfig = {
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email
+            email: credentials.email as string
           }
         })
 
@@ -29,7 +31,7 @@ const config: NextAuthConfig = {
         }
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
+          credentials.password as string,
           user.password
         )
 

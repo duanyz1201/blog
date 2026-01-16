@@ -81,12 +81,10 @@ export function PostEditor({
         },
       }),
       Markdown.configure({
-        // 确保 Markdown 扩展正确处理代码块
-        html: false,
-        transformPastedText: true,
-        transformCopiedText: true,
         // 使用 GitHub Flavored Markdown 以更好地处理代码块等格式
-        transformCopiedHTML: false,
+        markedOptions: {
+          gfm: true,
+        },
       }),
       Placeholder.configure({
         placeholder: "开始编写文章内容...",

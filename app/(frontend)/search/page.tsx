@@ -1,15 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { PostCard } from "@/components/frontend/post-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { PaginationClient } from "@/components/ui/pagination-client"
 
 export default function SearchPage() {
-  const searchParams = useSearchParams()
-  const [query, setQuery] = useState(searchParams.get("q") || "")
+  const router = useRouter()
+  const [query, setQuery] = useState("")
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
@@ -35,18 +35,22 @@ export default function SearchPage() {
     }
   }
 
+  // 从 URL 获取查询参数（客户端）
   useEffect(() => {
-    const q = searchParams.get("q")
-    if (q) {
-      setQuery(q)
-      search(q)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const q = params.get("q")
+      if (q) {
+        setQuery(q)
+        search(q)
+      }
     }
-  }, [searchParams])
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     search(query, 1)
-    window.history.pushState({}, "", `/search?q=${encodeURIComponent(query)}`)
+    router.push(`/search?q=${encodeURIComponent(query)}`)
   }
 
   return (
