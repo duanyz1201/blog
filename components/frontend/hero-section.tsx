@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useSession, signOut } from "next-auth/react"
 import { ChevronLeft, ChevronRight, ChevronDown, Github, Mail, Rss, Twitter, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -22,6 +23,7 @@ type Stats = {
 }
 
 export function HeroSection({ stats }: { stats: Stats }) {
+  const { data: session } = useSession()
   const [currentImage, setCurrentImage] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const totalViews =
@@ -127,18 +129,54 @@ export function HeroSection({ stats }: { stats: Stats }) {
               </Link>
             </div>
 
-            {/* 搜索按钮 */}
-            <Link 
-              href="/search"
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
-            >
-              <span>🔍</span>
-              <span className="hidden sm:inline">搜索</span>
-            </Link>
+            {/* 右侧功能区 */}
+            <div className="flex items-center gap-4">
+              {/* 搜索按钮 */}
+              <Link 
+                href="/search"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+              >
+                <span>🔍</span>
+                <span className="hidden sm:inline">搜索</span>
+              </Link>
 
-            {/* 主题切换按钮 */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
-              <ThemeToggle />
+              {/* 主题切换按钮 */}
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full overflow-hidden [&_button]:bg-transparent [&_button]:border-0 [&_button]:text-white [&_button]:hover:bg-white/10 [&_button]:rounded-full">
+                <ThemeToggle />
+              </div>
+
+              {/* 登录/注册按钮 */}
+              {session ? (
+                <>
+                  <span className="text-sm text-white/90 hidden sm:inline">{session.user.name}</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => signOut()}
+                    className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  >
+                    退出
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    asChild 
+                    className="hidden sm:inline-flex bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:text-white transition-all"
+                  >
+                    <Link href="/auth/signin">登录</Link>
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    asChild 
+                    className="hidden sm:inline-flex bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:text-white transition-all"
+                  >
+                    <Link href="/auth/signup">注册</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -146,64 +184,65 @@ export function HeroSection({ stats }: { stats: Stats }) {
 
       {/* 中心内容 */}
       <div className={`absolute inset-0 flex flex-col items-center justify-center text-center px-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-        {/* 副标题/格言 */}
-        <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl">
-          记录技术成长，分享生活感悟
-        </p>
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
+          {/* 副标题/格言 */}
+          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl">
+            记录技术成长，分享生活感悟
+          </p>
 
-        {/* 统计数据 */}
-        <div className="flex items-center gap-8 mb-12 text-white/70">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{stats.totalPosts}</div>
-            <div className="text-sm">文章</div>
+          {/* 统计数据 */}
+          <div className="flex items-center justify-center gap-8 mb-12 text-white/70 flex-wrap">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">{stats.totalPosts}</div>
+              <div className="text-sm">文章</div>
+            </div>
+            <div className="w-px h-10 bg-white/30" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">{stats.totalCategories}</div>
+              <div className="text-sm">分类</div>
+            </div>
+            <div className="w-px h-10 bg-white/30" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">{stats.totalTags}</div>
+              <div className="text-sm">标签</div>
+            </div>
+            {totalViews > 0 && (
+              <>
+                <div className="w-px h-10 bg-white/30" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">{totalViews.toLocaleString()}</div>
+                  <div className="text-sm">阅读</div>
+                </div>
+              </>
+            )}
           </div>
-          <div className="w-px h-10 bg-white/30" />
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{stats.totalCategories}</div>
-            <div className="text-sm">分类</div>
-          </div>
-          <div className="w-px h-10 bg-white/30" />
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{stats.totalTags}</div>
-            <div className="text-sm">标签</div>
-          </div>
-          {totalViews > 0 && (
-            <>
-              <div className="w-px h-10 bg-white/30" />
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white">{totalViews.toLocaleString()}</div>
-                <div className="text-sm">阅读</div>
-              </div>
-            </>
-          )}
-        </div>
 
-        {/* 按钮组 */}
-        <div className="flex items-center gap-4 mb-12">
-          <Button
-            onClick={scrollToContent}
-            variant="outline"
-            size="lg"
-            className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all px-8 py-6 text-lg rounded-full"
-          >
-            <ChevronDown className="mr-2 h-5 w-5" />
-            开始阅读
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all px-8 py-6 text-lg rounded-full"
-          >
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-              <Github className="mr-2 h-5 w-5" />
-              GitHub
-            </a>
-          </Button>
-        </div>
+          {/* 按钮组 */}
+          <div className="flex items-center justify-center gap-4 mb-12 flex-wrap">
+            <Button
+              onClick={scrollToContent}
+              variant="outline"
+              size="lg"
+              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all px-8 py-6 text-lg rounded-full"
+            >
+              <ChevronDown className="mr-2 h-5 w-5" />
+              开始阅读
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black transition-all px-8 py-6 text-lg rounded-full"
+            >
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <Github className="mr-2 h-5 w-5" />
+                GitHub
+              </a>
+            </Button>
+          </div>
 
-        {/* 社交图标 */}
-        <div className="flex items-center gap-6">
+          {/* 社交图标 */}
+          <div className="flex items-center justify-center gap-6">
           <a 
             href="https://github.com" 
             target="_blank" 
@@ -232,6 +271,7 @@ export function HeroSection({ stats }: { stats: Stats }) {
           >
             <Rss className="h-5 w-5" />
           </a>
+          </div>
         </div>
       </div>
 

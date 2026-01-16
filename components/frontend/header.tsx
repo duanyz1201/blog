@@ -74,8 +74,9 @@ export function Header() {
               </Link>
             </div>
 
-            {/* 搜索按钮 */}
+            {/* 右侧功能区 */}
             <div className="flex items-center gap-4">
+              {/* 搜索按钮 */}
               <Link 
                 href="/search"
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all"
@@ -84,8 +85,10 @@ export function Header() {
                 <span className="hidden sm:inline">搜索</span>
               </Link>
 
+              {/* 主题切换按钮 */}
               <ThemeToggle />
 
+              {/* 登录/注册按钮 */}
               {session ? (
                 <>
                   <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline">{session.user.name}</span>
