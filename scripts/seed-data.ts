@@ -15,14 +15,18 @@ async function seed() {
     
     // 1. 创建管理员用户
     console.log('1. 创建管理员用户...')
-    const adminPassword = await hashPassword('admin123')
+    const adminPassword = await hashPassword('admin@123')
     const admin = await prisma.user.upsert({
-      where: { email: 'admin@example.com' },
-      update: {},
-      create: {
-        email: 'admin@example.com',
+      where: { email: 'admin@admin.com' },
+      update: {
         password: adminPassword,
-        name: '管理员',
+        name: 'admin',
+        role: 'ADMIN',
+      },
+      create: {
+        email: 'admin@admin.com',
+        password: adminPassword,
+        name: 'admin',
         role: 'ADMIN',
       },
     })
@@ -195,8 +199,8 @@ Next.js 让 React 开发变得更加简单和高效。`,
     
     console.log('\n✅ 测试数据创建完成！')
     console.log('\n登录信息:')
-    console.log('  邮箱: admin@example.com')
-    console.log('  密码: admin123')
+    console.log('  邮箱: admin@admin.com')
+    console.log('  密码: admin@123')
     console.log('\n现在可以访问 http://localhost:3000 查看博客首页了！')
     
   } catch (error: any) {
