@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { formatRelativeTime } from "@/lib/date-utils"
+import { formatDateTime } from "@/lib/date-utils"
 import { Eye, MessageCircle, ArrowRight, Calendar } from "lucide-react"
 
 type Post = {
@@ -48,7 +48,7 @@ export function PostCard({ post }: { post: Post }) {
             )}
             <div className="flex items-center text-xs text-gray-400 dark:text-gray-500">
               <Calendar className="w-3.5 h-3.5 mr-1" />
-              {formatRelativeTime(new Date(post.createdAt))}
+              {formatDateTime(new Date(post.createdAt))}
             </div>
           </div>
 

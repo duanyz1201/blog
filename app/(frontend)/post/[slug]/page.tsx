@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { formatDate, formatDateTime } from "@/lib/date-utils"
+import { formatDateTime } from "@/lib/date-utils"
 import { MarkdownContent } from "@/components/markdown-content"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -69,8 +69,8 @@ export default async function PostPage({
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
             <span className="font-medium text-gray-900 dark:text-white">{post.author.name}</span>
             <span>•</span>
-            <span title={formatDateTime(new Date(post.createdAt))}>
-              {formatDate(new Date(post.createdAt))}
+            <span>
+              {formatDateTime(new Date(post.createdAt))}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">

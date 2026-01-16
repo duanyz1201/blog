@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { formatDate, formatRelativeTime } from "@/lib/date-utils"
+import { formatDateTime } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 
@@ -61,8 +61,8 @@ export function FeaturedPost({ post }: { post: FeaturedPost }) {
                 <div className="flex items-center gap-4 text-sm text-white/90 flex-wrap">
                   <span className="font-medium">{post.author.name}</span>
                   <span className="text-white/60">•</span>
-                  <span title={formatDate(new Date(post.createdAt))} className="text-white/80">
-                    {formatRelativeTime(new Date(post.createdAt))}
+                  <span className="text-white/80">
+                    {formatDateTime(new Date(post.createdAt))}
                   </span>
                   <span className="text-white/60">•</span>
                   <span className="flex items-center gap-1">
@@ -104,8 +104,8 @@ export function FeaturedPost({ post }: { post: FeaturedPost }) {
             <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
               <span className="font-medium">{post.author.name}</span>
               <span>•</span>
-              <span title={formatDate(new Date(post.createdAt))}>
-                {formatRelativeTime(new Date(post.createdAt))}
+              <span>
+                {formatDateTime(new Date(post.createdAt))}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">

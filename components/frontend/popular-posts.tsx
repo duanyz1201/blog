@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { formatRelativeTime } from "@/lib/date-utils"
+import { formatDateTime } from "@/lib/date-utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp } from "lucide-react"
@@ -65,7 +65,7 @@ export function PopularPosts({ posts }: { posts: Post[] }) {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                       <span>{post.author.name}</span>
                       <span>•</span>
-                      <span>{formatRelativeTime(new Date(post.createdAt))}</span>
+                      <span>{formatDateTime(new Date(post.createdAt))}</span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
                         <span>👁</span>

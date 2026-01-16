@@ -3,7 +3,6 @@
 import { useState, useImperativeHandle, forwardRef } from "react"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
-import { formatDistanceToNow } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CommentForm } from "./comment-form"
@@ -83,17 +82,7 @@ export const CommentList = forwardRef<CommentListRef, {
   }))
 
   const formatDate = (date: Date | string) => {
-    const now = new Date()
     const commentDate = typeof date === 'string' ? new Date(date) : date
-    const diffInHours = (now.getTime() - commentDate.getTime()) / (1000 * 60 * 60)
-    
-    if (diffInHours < 24) {
-      return formatDistanceToNow(commentDate, { 
-        addSuffix: true, 
-        locale: zhCN 
-      })
-    }
-    
     return format(commentDate, "yyyy年MM月dd日 HH:mm", { locale: zhCN })
   }
 
