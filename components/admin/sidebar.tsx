@@ -65,7 +65,7 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent hover:text-accent-foreground"
@@ -80,7 +80,7 @@ export function Sidebar() {
         <div className="mt-8 pt-8 border-t">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
           >
             <Home className="h-4 w-4" />
             返回前台

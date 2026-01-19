@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Input } from "@/components/ui/input"
-import { Search, Menu, X } from "lucide-react"
+import { Search, Menu, X, Home, FolderOpen, Tag, Archive, User } from "lucide-react"
 
 export function Header() {
   const { data: session } = useSession()
@@ -44,13 +44,13 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-[100] w-full bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 shadow-sm">
+    <header className="sticky top-0 z-[100] w-full bg-background border-b border-border shadow-sm">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-20 items-center justify-between">
             {/* Logo - 左侧 */}
             <Link 
               href="/" 
-              className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0"
+              className="text-2xl font-bold text-foreground hover:text-primary transition-colors flex-shrink-0 cursor-pointer"
             >
               {siteName}
             </Link>
@@ -59,37 +59,37 @@ export function Header() {
             <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <Link 
                 href="/" 
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
-                <span>🏠</span>
+                <Home className="w-4 h-4" />
                 <span>首页</span>
               </Link>
               <Link 
                 href="/categories" 
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
-                <span>📂</span>
+                <FolderOpen className="w-4 h-4" />
                 <span>分类</span>
               </Link>
               <Link 
                 href="/tags" 
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
-                <span>🏷️</span>
+                <Tag className="w-4 h-4" />
                 <span>标签</span>
               </Link>
               <Link 
                 href="/archives" 
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
-                <span>📚</span>
+                <Archive className="w-4 h-4" />
                 <span>归档</span>
               </Link>
               <Link 
                 href="/about" 
-                className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
-                <span>👤</span>
+                <User className="w-4 h-4" />
                 <span>关于</span>
               </Link>
             </div>
@@ -99,9 +99,9 @@ export function Header() {
               {/* 搜索按钮 */}
               <Link 
                 href="/search"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border text-foreground hover:bg-accent transition-colors cursor-pointer"
               >
-                <span>🔍</span>
+                <Search className="w-4 h-4" />
                 <span className="hidden sm:inline">搜索</span>
               </Link>
 
@@ -111,22 +111,22 @@ export function Header() {
               {/* 登录/注册按钮 */}
               {session ? (
                 <>
-                  <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline px-2">{session.user.name}</span>
+                  <span className="text-sm text-muted-foreground hidden sm:inline px-2">{session.user.name}</span>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => signOut()}
-                    className="border-gray-300 dark:border-slate-600"
+                    className="cursor-pointer"
                   >
                     退出
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+                  <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex cursor-pointer">
                     <Link href="/auth/signin">登录</Link>
                   </Button>
-                  <Button size="sm" asChild className="hidden sm:inline-flex bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button size="sm" asChild className="hidden sm:inline-flex cursor-pointer">
                     <Link href="/auth/signup">注册</Link>
                   </Button>
                 </>
@@ -146,55 +146,55 @@ export function Header() {
 
           {/* 移动端菜单 */}
           {mobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <div className="md:hidden border-t border-border bg-background">
               <div className="px-4 py-4">
                 <nav className="flex flex-col gap-1">
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg cursor-pointer transition-colors"
                 >
-                  <span>🏠</span>
+                  <Home className="w-4 h-4" />
                   首页
                 </Link>
                 <Link
                   href="/categories"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg cursor-pointer transition-colors"
                 >
-                  <span>📂</span>
+                  <FolderOpen className="w-4 h-4" />
                   分类
                 </Link>
                 <Link
                   href="/tags"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg cursor-pointer transition-colors"
                 >
-                  <span>🏷️</span>
+                  <Tag className="w-4 h-4" />
                   标签
                 </Link>
                 <Link
                   href="/archives"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg cursor-pointer transition-colors"
                 >
-                  <span>📚</span>
+                  <Archive className="w-4 h-4" />
                   归档
                 </Link>
                 <Link
                   href="/about"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg cursor-pointer transition-colors"
                 >
-                  <span>👤</span>
+                  <User className="w-4 h-4" />
                   关于
                 </Link>
                 {!session && (
-                  <div className="flex gap-2 px-4 pt-3 mt-2 border-t border-gray-200 dark:border-slate-700">
-                    <Button variant="outline" asChild className="flex-1">
+                  <div className="flex gap-2 px-4 pt-3 mt-2 border-t border-border">
+                    <Button variant="outline" asChild className="flex-1 cursor-pointer">
                       <Link href="/auth/signin" onClick={() => setMobileMenuOpen(false)}>登录</Link>
                     </Button>
-                    <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700">
+                    <Button asChild className="flex-1 cursor-pointer">
                       <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>注册</Link>
                     </Button>
                   </div>

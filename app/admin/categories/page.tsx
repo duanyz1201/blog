@@ -47,7 +47,7 @@ export default async function CategoriesPage() {
           {categories.map((category: any) => (
             <div
               key={category.id}
-              className="p-4 border rounded-lg hover:bg-accent"
+              className="p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">{category.name}</h3>
@@ -57,10 +57,10 @@ export default async function CategoriesPage() {
                 {category.slug}
               </p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="cursor-pointer">
                   编辑
                 </Button>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" className="cursor-pointer">
                   删除
                 </Button>
               </div>

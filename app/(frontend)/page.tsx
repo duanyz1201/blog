@@ -6,6 +6,7 @@ import { PopularPosts } from "@/components/frontend/popular-posts"
 import { CategoryList } from "@/components/frontend/category-list"
 import { TagCloud } from "@/components/frontend/tag-cloud"
 import { HeroSection } from "@/components/frontend/hero-section"
+import { Flame, FolderOpen, Tag as TagIcon } from "lucide-react"
 
 // 强制动态渲染，确保获取最新数据
 export const dynamic = 'force-dynamic'
@@ -77,7 +78,7 @@ export default async function HomePage({
       <HeroSection stats={stats} siteName={siteName} />
 
       {/* 主要内容区域 - 简洁背景 */}
-      <div className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+      <div className="bg-gradient-to-b from-background to-background/95">
         
         {/* 特色文章（如果有） */}
         {featuredPost && (
@@ -103,12 +104,12 @@ export default async function HomePage({
             {/* 标题 */}
             <div className="flex items-center justify-between mb-12">
               <div className="flex flex-col">
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">最新文章</h2>
-                <div className="h-1 w-20 bg-blue-600 rounded-full mt-4" />
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">最新文章</h2>
+                <div className="h-1 w-20 bg-primary rounded-full mt-4" />
               </div>
               <Link
                 href="/archives"
-                className="group flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
                 查看全部
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -117,12 +118,12 @@ export default async function HomePage({
 
             {posts.length === 0 ? (
               <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 mb-6">
-                  <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
+                  <svg className="w-10 h-10 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <p className="text-lg text-slate-500">暂无文章</p>
+                <p className="text-lg text-muted-foreground">暂无文章</p>
               </div>
             ) : (
               <>
@@ -148,16 +149,16 @@ export default async function HomePage({
         </section>
 
         {/* 底部信息区 */}
-        <section className="relative border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+        <section className="relative border-t border-border bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="max-w-7xl mx-auto">
               <div className="grid md:grid-cols-3 gap-16">
                 {/* 热门文章 */}
                 {popularPosts.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
-                        🔥
+                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3 text-foreground">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent text-accent-foreground">
+                        <Flame className="w-4 h-4" />
                       </span>
                       热门文章
                     </h3>
@@ -166,17 +167,17 @@ export default async function HomePage({
                         <Link 
                           key={post.id}
                           href={`/post/${post.slug}`}
-                          className="flex items-start gap-4 group"
+                          className="flex items-start gap-4 group cursor-pointer"
                         >
                           <span className={`flex-shrink-0 w-6 h-6 rounded-md text-xs font-bold flex items-center justify-center mt-0.5 transition-colors ${
-                            index === 0 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' :
-                            index === 1 ? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' :
-                            index === 2 ? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' :
-                            'text-slate-400 dark:text-slate-600'
+                            index === 0 ? 'bg-accent text-accent-foreground' :
+                            index === 1 ? 'bg-muted text-muted-foreground' :
+                            index === 2 ? 'bg-muted text-muted-foreground' :
+                            'text-muted-foreground/50'
                           }`}>
                             {index + 1}
                           </span>
-                          <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-relaxed">
+                          <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors line-clamp-2 leading-relaxed">
                             {post.title}
                           </span>
                         </Link>
@@ -188,9 +189,9 @@ export default async function HomePage({
                 {/* 分类 */}
                 {categories.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                        📂
+                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3 text-foreground">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent text-accent-foreground">
+                        <FolderOpen className="w-4 h-4" />
                       </span>
                       文章分类
                     </h3>
@@ -199,12 +200,12 @@ export default async function HomePage({
                         <Link
                           key={category.id}
                           href={`/categories/${category.slug}`}
-                          className="group flex items-center gap-2 px-4 py-2 text-sm bg-gray-50 dark:bg-slate-800/50 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                          className="group flex items-center gap-2 px-4 py-2 text-sm bg-secondary rounded-full hover:bg-accent transition-colors cursor-pointer"
                         >
-                          <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                          <span className="text-foreground group-hover:text-primary">
                             {category.name}
                           </span>
-                          <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-medium bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full group-hover:bg-blue-100 dark:group-hover:bg-blue-800/40 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
+                          <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-medium bg-muted text-muted-foreground rounded-full group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                             {category._count.posts}
                           </span>
                         </Link>
@@ -216,9 +217,9 @@ export default async function HomePage({
                 {/* 标签云 */}
                 {tags.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-                        🏷️
+                    <h3 className="text-lg font-bold mb-8 flex items-center gap-3 text-foreground">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent text-accent-foreground">
+                        <TagIcon className="w-4 h-4" />
                       </span>
                       热门标签
                     </h3>
@@ -227,7 +228,7 @@ export default async function HomePage({
                         <Link
                           key={tag.id}
                           href={`/tags/${tag.slug}`}
-                          className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-400/50 transition-colors"
+                          className="px-3 py-1.5 text-xs font-medium text-muted-foreground bg-card border border-border rounded-lg hover:text-primary hover:border-primary/50 transition-colors cursor-pointer"
                         >
                           #{tag.name}
                         </Link>

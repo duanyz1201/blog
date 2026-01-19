@@ -183,7 +183,7 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalComments}</div>
             {stats.pendingComments > 0 && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
+              <p className="text-xs text-destructive mt-1 flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 待审核: {stats.pendingComments}
               </p>
@@ -301,7 +301,7 @@ export default async function DashboardPage() {
                     <div className="flex-1">
                       <Link
                         href={`/admin/posts/${post.id}`}
-                        className="text-sm font-medium hover:underline"
+                        className="text-sm font-medium hover:underline cursor-pointer transition-colors"
                       >
                         {post.title}
                       </Link>
@@ -341,7 +341,7 @@ export default async function DashboardPage() {
                     </p>
                     <Link
                       href={`/post/${comment.post.slug}`}
-                      className="text-xs text-primary hover:underline"
+                      className="text-xs text-primary hover:underline cursor-pointer transition-colors"
                     >
                       {comment.post.title}
                     </Link>
@@ -373,7 +373,7 @@ export default async function DashboardPage() {
                         </span>
                         <Link
                           href={`/admin/posts/${post.id}`}
-                          className="text-sm font-medium hover:underline line-clamp-1"
+                          className="text-sm font-medium hover:underline line-clamp-1 cursor-pointer transition-colors"
                         >
                           {post.title}
                         </Link>

@@ -8,6 +8,7 @@ import { CommentSection } from "@/components/frontend/comment-section"
 import { ReadingProgress } from "@/components/frontend/reading-progress"
 import { PostCard } from "@/components/frontend/post-card"
 import { ShareButtons } from "@/components/frontend/share-buttons"
+import { Eye, MessageCircle } from "lucide-react"
 
 async function getPost(slug: string) {
   const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/posts/${slug}`, {
@@ -45,7 +46,7 @@ export default async function PostPage({
                 <Badge 
                   key={category.slug} 
                   variant="secondary"
-                  className="px-3 py-1 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                  className="px-3 py-1 text-sm"
                 >
                   {category.name}
                 </Badge>
@@ -55,7 +56,7 @@ export default async function PostPage({
           
           {/* 标题和分享 */}
           <div className="flex items-start justify-between gap-6 mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight flex-1">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight flex-1">
               {post.title}
             </h1>
             <ShareButtons 
@@ -66,32 +67,32 @@ export default async function PostPage({
           </div>
           
           {/* 元数据 */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <span className="font-medium text-gray-900 dark:text-white">{post.author.name}</span>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
+            <span className="font-medium text-foreground">{post.author.name}</span>
             <span>•</span>
             <span>
               {formatDateTime(new Date(post.createdAt))}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <span>👁</span>
+              <Eye className="w-4 h-4" />
               {post.views}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <span>💬</span>
+              <MessageCircle className="w-4 h-4" />
               {post.comments?.length || 0}
             </span>
           </div>
           
           {/* 标签 */}
           {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-slate-800">
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
               {post.tags.map((tag: any) => (
                 <Link
                   key={tag.slug}
                   href={`/tags/${tag.slug}`}
-                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-slate-800 rounded-full hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  className="px-3 py-1 text-sm text-muted-foreground bg-secondary rounded-full hover:text-primary hover:bg-accent transition-colors cursor-pointer"
                 >
                   #{tag.name}
                 </Link>
@@ -118,10 +119,10 @@ export default async function PostPage({
         </div>
 
         {/* 上一页/下一页导航 */}
-        <div className="border-t border-gray-200 dark:border-slate-800 pt-8 mt-12">
+        <div className="border-t border-border pt-8 mt-12">
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
             {post.prevPost && (
-              <Button variant="outline" asChild className="flex-1 sm:flex-initial">
+              <Button variant="outline" asChild className="flex-1 sm:flex-initial cursor-pointer">
                 <Link href={`/post/${post.prevPost.slug}`} className="flex items-center gap-2">
                   <span>←</span>
                   <span className="truncate">{post.prevPost.title}</span>
@@ -129,7 +130,7 @@ export default async function PostPage({
               </Button>
             )}
             {post.nextPost && (
-              <Button variant="outline" asChild className="flex-1 sm:flex-initial">
+              <Button variant="outline" asChild className="flex-1 sm:flex-initial cursor-pointer">
                 <Link href={`/post/${post.nextPost.slug}`} className="flex items-center gap-2">
                   <span className="truncate">{post.nextPost.title}</span>
                   <span>→</span>
@@ -144,8 +145,8 @@ export default async function PostPage({
 
         {/* 相关文章 */}
         {post.relatedPosts && post.relatedPosts.length > 0 && (
-          <div className="mt-20 pt-16 border-t border-gray-200 dark:border-slate-800">
-            <h2 className="text-3xl font-bold mb-10 text-gray-900 dark:text-white">相关文章</h2>
+          <div className="mt-20 pt-16 border-t border-border">
+            <h2 className="text-3xl font-bold mb-10 text-foreground">相关文章</h2>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {post.relatedPosts.map((relatedPost: any) => (
                 <PostCard key={relatedPost.id} post={relatedPost} />

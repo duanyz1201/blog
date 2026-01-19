@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { FileText } from "lucide-react"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
 import Link from "next/link"
@@ -215,7 +216,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
       {comments.map((comment: any) => (
         <div
           key={comment.id}
-          className="p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+          className="p-3 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
         >
           {/* 第一行：用户信息、状态、时间、操作按钮 */}
           <div className="flex items-center justify-between gap-3 mb-1.5">
@@ -238,7 +239,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="h-7 px-2 text-xs"
+                    className="h-7 px-2 text-xs cursor-pointer"
                     onClick={() => handleApprove(comment.id)}
                     disabled={loading === comment.id}
                   >
@@ -247,7 +248,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="h-7 px-2 text-xs"
+                    className="h-7 px-2 text-xs cursor-pointer"
                     onClick={() => handleReject(comment.id)}
                     disabled={loading === comment.id}
                   >
@@ -259,7 +260,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className="h-7 px-2 text-xs cursor-pointer"
                   onClick={() => handleUnhide(comment.id)}
                   disabled={loading === comment.id}
                 >
@@ -269,7 +270,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className="h-7 px-2 text-xs cursor-pointer"
                   onClick={() => handleHide(comment.id)}
                   disabled={loading === comment.id}
                 >
@@ -279,7 +280,7 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
               <Button 
                 variant="destructive" 
                 size="sm"
-                className="h-7 px-2 text-xs"
+                className="h-7 px-2 text-xs cursor-pointer"
                 onClick={() => handleDelete(comment.id)}
                 disabled={loading === comment.id}
               >
@@ -290,15 +291,16 @@ export function CommentsList({ comments: initialComments }: { comments: Comment[
 
           {/* 第二行：评论内容和文章标题 */}
           <div className="space-y-1">
-            <p className="text-sm whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300">
+            <p className="text-sm whitespace-pre-wrap leading-relaxed text-foreground">
               {comment.content}
             </p>
             <Link
               href={`/post/${comment.post.slug}`}
-              className="inline-block text-xs text-primary hover:underline truncate max-w-full"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline truncate max-w-full transition-colors cursor-pointer"
               title={comment.post.title}
             >
-              📄 {comment.post.title}
+              <FileText className="h-3 w-3" />
+              {comment.post.title}
             </Link>
           </div>
         </div>

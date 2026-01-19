@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus } from "lucide-react"
+import { Plus, Eye, MessageCircle } from "lucide-react"
 import { format } from "date-fns"
 import { zhCN } from "date-fns/locale"
 import { prisma } from "@/lib/db"
@@ -100,32 +100,38 @@ export default async function PostsPage() {
           {posts.map((post: any) => (
             <div
               key={post.id}
-              className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent"
+              className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <Link
                     href={`/admin/posts/${post.id}`}
-                    className="font-medium hover:underline"
+                    className="font-medium hover:underline transition-colors cursor-pointer"
                   >
                     {post.title}
                   </Link>
                   {getStatusBadge(post.status)}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
                   <span>{post.author.name}</span>
-                  <span className="mx-2">•</span>
+                  <span>•</span>
                   <span>
                     {format(new Date(post.createdAt), "yyyy年MM月dd日", { locale: zhCN })}
                   </span>
-                  <span className="mx-2">•</span>
-                  <span>👁 {post.views}</span>
-                  <span className="mx-2">•</span>
-                  <span>💬 {post._count.comments}</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-3.5 w-3.5" />
+                    {post.views}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    {post._count.comments}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild className="cursor-pointer">
                   <Link href={`/admin/posts/${post.id}`}>编辑</Link>
                 </Button>
               </div>

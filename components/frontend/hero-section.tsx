@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
-import { ChevronLeft, ChevronRight, ChevronDown, Github, Mail, Rss, Twitter, BookOpen } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, Github, Mail, Rss, Twitter, BookOpen, Home, FolderOpen, Tag, Archive, User, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -120,37 +120,37 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
             <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <Link 
                 href="/" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer"
               >
-                <span>🏠</span>
+                <Home className="w-4 h-4" />
                 <span>首页</span>
               </Link>
               <Link 
                 href="/categories" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer"
               >
-                <span>📂</span>
+                <FolderOpen className="w-4 h-4" />
                 <span>分类</span>
               </Link>
               <Link 
                 href="/tags" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer"
               >
-                <span>🏷️</span>
+                <Tag className="w-4 h-4" />
                 <span>标签</span>
               </Link>
               <Link 
                 href="/archives" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer"
               >
-                <span>📚</span>
+                <Archive className="w-4 h-4" />
                 <span>归档</span>
               </Link>
               <Link 
                 href="/about" 
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer"
               >
-                <span>👤</span>
+                <User className="w-4 h-4" />
                 <span>关于</span>
               </Link>
             </div>
@@ -160,9 +160,9 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
               {/* 搜索按钮 */}
               <Link 
                 href="/search"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all cursor-pointer"
               >
-                <span>🔍</span>
+                <Search className="w-4 h-4" />
                 <span className="hidden sm:inline">搜索</span>
               </Link>
 
@@ -273,13 +273,13 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
             href="https://github.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
           >
             <Github className="h-5 w-5" />
           </a>
           <a 
             href="mailto:example@email.com"
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
           >
             <Mail className="h-5 w-5" />
           </a>
@@ -287,13 +287,13 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
             href="https://twitter.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
           >
             <Twitter className="h-5 w-5" />
           </a>
           <a 
             href="/rss"
-            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
           >
             <Rss className="h-5 w-5" />
           </a>
@@ -304,14 +304,14 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
       {/* 左右切换箭头 */}
       <button
         onClick={prevImage}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all z-20"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all z-20 cursor-pointer"
         aria-label="上一张"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
       <button
         onClick={nextImage}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all z-20"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all z-20 cursor-pointer"
         aria-label="下一张"
       >
         <ChevronRight className="h-6 w-6" />
@@ -323,7 +323,7 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
           <button
             key={index}
             onClick={() => setCurrentImage(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
               index === currentImage 
                 ? "w-8 bg-white" 
                 : "bg-white/50 hover:bg-white/70"

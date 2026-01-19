@@ -46,14 +46,14 @@ export default async function TagsPage() {
           {tags.map((tag: any) => (
             <div
               key={tag.id}
-              className="p-3 border rounded-lg hover:bg-accent flex items-center gap-2"
+              className="p-3 border rounded-lg hover:bg-accent flex items-center gap-2 transition-colors cursor-pointer"
             >
               <span className="font-medium">{tag.name}</span>
               <Badge variant="secondary">{tag._count.posts}</Badge>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="cursor-pointer">
                 编辑
               </Button>
-              <Button variant="destructive" size="sm">
+              <Button variant="destructive" size="sm" className="cursor-pointer">
                 删除
               </Button>
             </div>
