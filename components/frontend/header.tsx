@@ -110,26 +110,37 @@ export function Header() {
 
               {/* 登录/注册按钮 */}
               {session ? (
-                <>
-                  <span className="text-sm text-muted-foreground hidden sm:inline px-2">{session.user.name}</span>
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-medium">
+                      {session.user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">{session.user.name}</span>
+                  </div>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm" 
                     onClick={() => signOut()}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
                   >
                     退出
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
-                  <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex cursor-pointer">
-                    <Link href="/auth/signin">登录</Link>
-                  </Button>
-                  <Button size="sm" asChild className="hidden sm:inline-flex cursor-pointer">
-                    <Link href="/auth/signup">注册</Link>
-                  </Button>
-                </>
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link 
+                    href="/auth/signin"
+                    className="px-4 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                  >
+                    登录
+                  </Link>
+                  <Link 
+                    href="/auth/signup"
+                    className="px-4 py-1.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors cursor-pointer"
+                  >
+                    注册
+                  </Link>
+                </div>
               )}
 
               {/* 移动端菜单按钮 */}

@@ -4,6 +4,7 @@ import React from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
+import rehypeSlug from "rehype-slug"
 import { CodeBlock } from "./code-block"
 import type { Element } from "hast"
 import "highlight.js/styles/github-dark.css"
@@ -143,7 +144,7 @@ export function MarkdownContent({ content }: { content: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[[rehypeHighlight, { detect: true }]]}
+      rehypePlugins={[rehypeSlug, [rehypeHighlight, { detect: true }]]}
       components={{
         // 自定义 p 组件，检查是否包含块级元素，如果是则使用 div 而不是 p
         p({ children, ...props }: ParagraphComponentProps) {

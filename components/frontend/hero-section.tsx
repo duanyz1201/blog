@@ -335,10 +335,10 @@ export function HeroSection({ stats, siteName = "个人博客" }: { stats: Stats
 
       {/* 向下滚动提示 */}
       <div 
-        className="absolute bottom-24 left-1/2 -translate-x-1/2 text-white/60 animate-bounce cursor-pointer z-20"
+        className="absolute bottom-24 left-0 right-0 flex justify-center text-white/60 cursor-pointer z-20"
         onClick={scrollToContent}
       >
-        <ChevronDown className="h-8 w-8" />
+        <ChevronDown className="h-8 w-8 animate-bounce" />
       </div>
     </div>
   )

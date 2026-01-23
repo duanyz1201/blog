@@ -71,14 +71,12 @@ export function CodeBlock({ children, className, language }: CodeBlockProps) {
       >
         {/* 顶部栏（语言标签和复制按钮） */}
         <div 
-          className="relative flex items-center justify-between px-4 py-1.5 border-b border-blue-500/20 code-block-bg"
+          className="relative flex items-center px-4 py-1.5 border-b border-blue-500/20 code-block-bg"
           style={{ backgroundColor: 'rgb(9, 28, 44)' }}
         >
-          {language && (
-            <span className="text-xs font-medium text-blue-400 tracking-wide">
-              {language.toLowerCase()}
-            </span>
-          )}
+          <span className="text-xs font-medium text-blue-400 tracking-wide flex-1">
+            {language ? language.toLowerCase() : 'code'}
+          </span>
           {/* 复制按钮 - 移到顶部栏右侧 */}
           <Button
             variant="ghost"

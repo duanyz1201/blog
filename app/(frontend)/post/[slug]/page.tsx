@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { formatDateTime } from "@/lib/date-utils"
+import { calculateReadingTime, formatReadingTime } from "@/lib/reading-time"
 import { MarkdownContent } from "@/components/markdown-content"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,10 @@ import { CommentSection } from "@/components/frontend/comment-section"
 import { ReadingProgress } from "@/components/frontend/reading-progress"
 import { PostCard } from "@/components/frontend/post-card"
 import { ShareButtons } from "@/components/frontend/share-buttons"
-import { Eye, MessageCircle } from "lucide-react"
+import { TableOfContents } from "@/components/frontend/table-of-contents"
+import { AuthorCard } from "@/components/frontend/author-card"
+import { BackToTop } from "@/components/frontend/back-to-top"
+import { Eye, MessageCircle, Clock, Calendar } from "lucide-react"
 
 async function getPost(slug: string) {
   const res = await fetch(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/posts/${slug}`, {
@@ -33,72 +37,114 @@ export default async function PostPage({
     notFound()
   }
 
+  // 计算阅读时间
+  const readingTime = calculateReadingTime(post.content)
+
   return (
     <>
       <ReadingProgress />
-      <article className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl">
-        {/* 文章头部 */}
-        <header className="mb-12">
+      <BackToTop />
+      
+      {/* 目录导航 - 桌面端右侧浮动 */}
+      <TableOfContents content={post.content} />
+      
+      <article className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl xl:mr-80">
+        {/* 文章头部 - 带渐变背景 */}
+        <header className="mb-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 article-header-gradient rounded-b-3xl">
           {/* 分类标签 */}
           {post.categories && post.categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
-              {post.categories.map((category: any) => (
-                <Badge 
-                  key={category.slug} 
-                  variant="secondary"
-                  className="px-3 py-1 text-sm"
+              {post.categories.map((category: { slug: string; name: string }) => (
+                <Link
+                  key={category.slug}
+                  href={`/categories/${category.slug}`}
+                  className="cursor-pointer"
                 >
-                  {category.name}
-                </Badge>
+                  <Badge 
+                    variant="secondary"
+                    className="px-4 py-1.5 text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    {category.name}
+                  </Badge>
+                </Link>
               ))}
             </div>
           )}
           
-          {/* 标题和分享 */}
-          <div className="flex items-start justify-between gap-6 mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight flex-1">
-              {post.title}
-            </h1>
+          {/* 标题 */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight mb-6">
+            {post.title}
+          </h1>
+          
+          {/* 元数据 - 更丰富的信息展示 */}
+          <div className="article-meta mb-6">
+            {/* 作者 */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-sm font-semibold text-primary">
+                  {post.author.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <span className="font-medium text-foreground">{post.author.name}</span>
+            </div>
+            
+            <span className="separator">•</span>
+            
+            {/* 发布日期 */}
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-4 h-4" />
+              {formatDateTime(new Date(post.createdAt))}
+            </span>
+            
+            <span className="separator">•</span>
+            
+            {/* 阅读时间 */}
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4" />
+              {formatReadingTime(readingTime)}
+            </span>
+            
+            <span className="separator">•</span>
+            
+            {/* 阅读量 */}
+            <span className="flex items-center gap-1.5">
+              <Eye className="w-4 h-4" />
+              {post.views} 次阅读
+            </span>
+            
+            <span className="separator">•</span>
+            
+            {/* 评论数 */}
+            <span className="flex items-center gap-1.5">
+              <MessageCircle className="w-4 h-4" />
+              {post.comments?.length || 0} 条评论
+            </span>
+          </div>
+          
+          {/* 标签和分享按钮 */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-border/50">
+            {/* 标签 */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag: { slug: string; name: string }) => (
+                  <Link
+                    key={tag.slug}
+                    href={`/tags/${tag.slug}`}
+                    className="px-3 py-1 text-sm text-muted-foreground bg-secondary/80 rounded-full hover:text-primary hover:bg-accent transition-colors cursor-pointer"
+                  >
+                    #{tag.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+            
+            {/* 分享按钮 */}
             <ShareButtons 
               title={post.title}
               url={`/post/${post.slug}`}
               description={post.excerpt || undefined}
             />
           </div>
-          
-          {/* 元数据 */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
-            <span className="font-medium text-foreground">{post.author.name}</span>
-            <span>•</span>
-            <span>
-              {formatDateTime(new Date(post.createdAt))}
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              {post.views}
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="w-4 h-4" />
-              {post.comments?.length || 0}
-            </span>
-          </div>
-          
-          {/* 标签 */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
-              {post.tags.map((tag: any) => (
-                <Link
-                  key={tag.slug}
-                  href={`/tags/${tag.slug}`}
-                  className="px-3 py-1 text-sm text-muted-foreground bg-secondary rounded-full hover:text-primary hover:bg-accent transition-colors cursor-pointer"
-                >
-                  #{tag.name}
-                </Link>
-              ))}
-            </div>
-          )}
         </header>
 
         {/* 封面图 */}
@@ -113,10 +159,13 @@ export default async function PostPage({
           </div>
         )}
 
-        {/* 文章内容 */}
-        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mb-12">
+        {/* 文章内容 - 使用增强的排版样式 */}
+        <div className="prose prose-slate dark:prose-invert prose-base max-w-none mb-8 prose-article">
           <MarkdownContent content={post.content} />
         </div>
+        
+        {/* 作者信息卡片 */}
+        <AuthorCard author={post.author} />
 
         {/* 上一页/下一页导航 */}
         <div className="border-t border-border pt-8 mt-12">

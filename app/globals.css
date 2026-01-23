@@ -345,3 +345,167 @@ button:active:not(:disabled) {
 .group:hover {
   transition: all 0.2s ease;
 }
+
+/* ========== 文章页面排版增强 ========== */
+
+/* 文章标题层级样式增强 */
+.prose-article h2 {
+  @apply text-xl md:text-2xl font-bold mt-8 mb-3 pb-2 border-b border-border;
+  position: relative;
+}
+
+.prose-article h2::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: hsl(var(--primary));
+  border-radius: 2px;
+}
+
+.prose-article h3 {
+  @apply text-lg md:text-xl font-semibold mt-6 mb-2;
+  position: relative;
+  padding-left: 0.75rem;
+}
+
+.prose-article h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: hsl(var(--primary));
+  border-radius: 2px;
+}
+
+.prose-article h4 {
+  @apply text-base md:text-lg font-semibold mt-5 mb-2 text-muted-foreground;
+}
+
+/* 段落间距优化 */
+.prose-article p {
+  @apply leading-7 mb-3 text-base;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+
+/* 引用块样式增强 */
+.prose-article blockquote {
+  @apply my-4 px-4 py-2 border-l-4 border-primary bg-secondary/50 rounded-r-lg;
+  font-style: italic;
+}
+
+.prose-article blockquote p {
+  @apply mb-0 text-muted-foreground text-sm;
+}
+
+/* Pull Quote 样式 - 大引用 */
+.prose-article .pull-quote {
+  @apply text-lg font-medium text-center py-4 my-6 border-y border-border;
+  color: hsl(var(--primary));
+}
+
+/* 列表样式优化 */
+.prose-article ul {
+  @apply my-3 space-y-1.5 list-none pl-0;
+}
+
+.prose-article ul li {
+  @apply relative pl-5 text-base;
+}
+
+.prose-article ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+}
+
+.prose-article ol {
+  @apply my-3 space-y-1.5 list-decimal pl-5;
+}
+
+.prose-article ol li {
+  @apply pl-1 text-base;
+}
+
+.prose-article ol li::marker {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+/* 链接样式 */
+.prose-article a:not(.no-underline) {
+  @apply text-primary underline underline-offset-2 decoration-primary/30 hover:decoration-primary transition-colors;
+}
+
+/* 图片样式 */
+.prose-article img {
+  @apply rounded-lg shadow-md my-4 mx-auto;
+}
+
+.prose-article figure {
+  @apply my-5;
+}
+
+.prose-article figcaption {
+  @apply text-center text-xs text-muted-foreground mt-2;
+}
+
+/* 分隔线样式 */
+.prose-article hr {
+  @apply my-6 border-none h-px bg-gradient-to-r from-transparent via-border to-transparent;
+}
+
+/* 表格样式 */
+.prose-article table {
+  @apply w-full my-4 text-sm;
+}
+
+.prose-article th {
+  @apply bg-secondary font-semibold text-left px-3 py-2 border-b-2 border-border;
+}
+
+.prose-article td {
+  @apply px-3 py-2 border-b border-border;
+}
+
+.prose-article tr:hover td {
+  @apply bg-secondary/50;
+}
+
+/* 阅读时间和元数据样式 */
+.article-meta {
+  @apply flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground;
+}
+
+.article-meta .separator {
+  @apply hidden sm:inline text-border;
+}
+
+/* 文章头部渐变背景 */
+.article-header-gradient {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0.03) 0%,
+    transparent 100%
+  );
+}
+
+/* 暗色模式下的文章头部渐变 */
+.dark .article-header-gradient {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0.08) 0%,
+    transparent 100%
+  );
+}
