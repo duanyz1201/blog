@@ -288,3 +288,60 @@ pre code br {
     animation: none;
   }
 }
+
+/* 页面过渡动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 页面内容过渡 */
+.animate-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 骨架屏闪烁效果 */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 链接点击反馈 */
+a:active {
+  opacity: 0.7;
+  transition: opacity 0.1s ease;
+}
+
+/* 按钮点击反馈 */
+button:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* 卡片悬停效果增强 */
+.group:hover {
+  transition: all 0.2s ease;
+}

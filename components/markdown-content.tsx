@@ -122,7 +122,7 @@ export function MarkdownContent({ content }: { content: string }) {
   }
   
   return (
-    <div className="prose prose-slate dark:prose-invert max-w-none">
+    <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { detect: true }]]}
