@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { User } from "lucide-react"
 
 interface AuthorCardProps {
@@ -18,9 +19,11 @@ export function AuthorCard({ author }: AuthorCardProps) {
         {/* 头像 */}
         <div className="flex-shrink-0">
           {author.image ? (
-            <img
+            <Image
               src={author.image}
               alt={author.name}
+              width={80}
+              height={80}
               className="w-20 h-20 rounded-full object-cover ring-4 ring-background shadow-lg"
             />
           ) : (

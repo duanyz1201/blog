@@ -21,6 +21,13 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   const tocListRef = useRef<HTMLUListElement>(null)
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map())
 
+  // 清理 itemRefs
+  useEffect(() => {
+    return () => {
+      itemRefs.current.clear()
+    }
+  }, [])
+
   // 从 DOM 中提取标题（等待渲染完成后）
   useEffect(() => {
     const extractHeadings = () => {

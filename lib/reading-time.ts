@@ -1,11 +1,23 @@
+interface ReadingTimeOptions {
+  /** 中文每分钟阅读字数，默认 300 */
+  chineseWordsPerMinute?: number
+  /** 英文每分钟阅读单词数，默认 200 */
+  englishWordsPerMinute?: number
+}
+
 /**
  * 计算文章阅读时间
  * @param content 文章内容（Markdown 或纯文本）
- * @param wordsPerMinute 每分钟阅读字数（中文默认 300，英文默认 200）
+ * @param options 阅读速度配置
  * @returns 预计阅读时间（分钟）
  */
-export function calculateReadingTime(content: string, wordsPerMinute = 300): number {
+export function calculateReadingTime(
+  content: string,
+  options: ReadingTimeOptions = {}
+): number {
   if (!content) return 0
+
+  const { chineseWordsPerMinute = 300, englishWordsPerMinute = 200 } = options
 
   // 移除 Markdown 语法
   const plainText = content
@@ -25,9 +37,9 @@ export function calculateReadingTime(content: string, wordsPerMinute = 300): num
     .split(/\s+/)
     .filter((word) => word.length > 0).length
 
-  // 中文按每分钟 300 字，英文按每分钟 200 词
-  const chineseMinutes = chineseChars / 300
-  const englishMinutes = englishWords / 200
+  // 根据配置计算阅读时间
+  const chineseMinutes = chineseChars / chineseWordsPerMinute
+  const englishMinutes = englishWords / englishWordsPerMinute
 
   const totalMinutes = chineseMinutes + englishMinutes
 

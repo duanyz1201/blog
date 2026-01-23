@@ -1,25 +1,33 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { ArrowUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function BackToTop() {
   const [isVisible, setIsVisible] = useState(false)
+  const ticking = useRef(false)
+
+  const toggleVisibility = useCallback(() => {
+    // 滚动超过 500px 时显示按钮
+    setIsVisible(window.pageYOffset > 500)
+  }, [])
 
   useEffect(() => {
-    const toggleVisibility = () => {
-      // 滚动超过 500px 时显示按钮
-      if (window.pageYOffset > 500) {
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
+    const handleScroll = () => {
+      // 使用 requestAnimationFrame 节流
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          toggleVisibility()
+          ticking.current = false
+        })
+        ticking.current = true
       }
     }
 
-    window.addEventListener("scroll", toggleVisibility)
-    return () => window.removeEventListener("scroll", toggleVisibility)
-  }, [])
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [toggleVisibility])
 
   const scrollToTop = () => {
     window.scrollTo({
