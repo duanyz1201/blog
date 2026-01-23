@@ -5,7 +5,26 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import { CodeBlock } from "./code-block"
+import type { Element } from "hast"
 import "highlight.js/styles/github-dark.css"
+
+// 代码组件属性类型
+interface CodeComponentProps {
+  node?: Element
+  inline?: boolean
+  className?: string
+  children?: React.ReactNode
+}
+
+// 段落组件属性类型
+interface ParagraphComponentProps {
+  children?: React.ReactNode
+}
+
+// Pre 组件属性类型
+interface PreComponentProps {
+  children?: React.ReactNode
+}
 
 // 检测内容是否为 HTML
 function isHTML(content: string): boolean {
@@ -122,13 +141,12 @@ export function MarkdownContent({ content }: { content: string }) {
   }
   
   return (
-    <div className="markdown-content">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[[rehypeHighlight, { detect: true }]]}
-        components={{
-          // 自定义 p 组件，检查是否包含块级元素，如果是则使用 div 而不是 p
-          p({ children, ...props }: any) {
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[[rehypeHighlight, { detect: true }]]}
+      components={{
+        // 自定义 p 组件，检查是否包含块级元素，如果是则使用 div 而不是 p
+        p({ children, ...props }: ParagraphComponentProps) {
             // 检查子元素是否包含块级元素（如 pre, div 等）
             const hasBlockLevel = React.Children.toArray(children).some((child: any) => {
               if (!child || typeof child !== 'object') return false
@@ -145,9 +163,9 @@ export function MarkdownContent({ content }: { content: string }) {
             }
             
             return <p {...props}>{children}</p>
-          },
-          // 自定义 pre 组件，使用 CodeBlock
-          pre({ children, ...props }: any) {
+        },
+        // 自定义 pre 组件，使用 CodeBlock
+        pre({ children, ...props }: PreComponentProps) {
             // 如果 children 是 code 元素，使用 CodeBlock
             const codeElement = Array.isArray(children) ? children[0] : children
             if (codeElement && typeof codeElement === 'object' && 'props' in codeElement) {
@@ -164,9 +182,9 @@ export function MarkdownContent({ content }: { content: string }) {
             }
             
             // 默认的 pre 标签
-            return <pre {...props}>{children}</pre>
-          },
-          code({ node, inline, className, children, ...props }: any) {
+          return <pre {...props}>{children}</pre>
+        },
+        code({ node, inline, className, children, ...props }: CodeComponentProps) {
             // 行内代码
             if (inline) {
               return (
@@ -180,16 +198,15 @@ export function MarkdownContent({ content }: { content: string }) {
             }
             
             // 代码块（多行）- 只返回 code 内容，pre 组件会处理包装
-            return (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            )
-          },
-        }}
-      >
-        {markdownContent}
-      </ReactMarkdown>
-    </div>
+          return (
+            <code className={className} {...props}>
+              {children}
+            </code>
+          )
+        },
+      }}
+    >
+      {markdownContent}
+    </ReactMarkdown>
   )
 }

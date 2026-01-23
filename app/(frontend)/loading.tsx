@@ -29,8 +29,8 @@ export default function Loading() {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section Skeleton */}
       <div className="mb-12">
-        <Skeleton className="h-10 w-64 mx-auto mb-4" />
-        <Skeleton className="h-6 w-96 mx-auto" />
+        <Skeleton className="h-10 w-64 max-w-full mx-auto mb-4" />
+        <Skeleton className="h-6 w-96 max-w-full mx-auto" />
       </div>
       
       {/* Featured Post Skeleton */}
