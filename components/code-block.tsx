@@ -75,8 +75,8 @@ export function CodeBlock({ children, className, language }: CodeBlockProps) {
           style={{ backgroundColor: 'rgb(9, 28, 44)' }}
         >
           {language && (
-            <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">
-              {language}
+            <span className="text-xs font-medium text-blue-400 tracking-wide">
+              {language.toLowerCase()}
             </span>
           )}
           {/* 复制按钮 - 移到顶部栏右侧 */}
